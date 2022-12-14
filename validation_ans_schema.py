@@ -33,19 +33,16 @@ class ValidationLongColumn(_SeriesValidation):
 # function custom
 class MasterDetail(_SeriesValidation):
 
-    def __init__(self, masterSource, detailSource, columnKey : str, sourceNameMaster, MasterFilename ,**kwargs):
+    def __init__(self, masterSource, columnKey : str, MasterFilename ,**kwargs):
         
         self.masterSource = masterSource
-        self.detailSource = detailSource
         self.columnKey = columnKey
-        self.sourceName = sourceNameMaster
         self.MasterFilename = MasterFilename
         super().__init__(**kwargs)
 
 
     @property
     def default_message(self):
-        #values = ', '.join(v["name"] for v in self.list_dfOuput) #self.namefile
         return 'Id does not match in the "{}" file '.format(self.MasterFilename)
 
 
@@ -55,14 +52,21 @@ class MasterDetail(_SeriesValidation):
         
 
         dfResult = pd.DataFrame()
-        dfResult[self.columnKey] = self.series #self.masterSource[self.columnKey]
-        #dfResult["Value"] = self.masterSource[self.columnKey].isin(self.detailSource[self.columnKey])
+        dfResult[self.columnKey] = self.series
         dfResult["Value"] = self.series.isin(self.masterSource[self.columnKey])
-        dfResult["NameFile"] = self.sourceName 
-
+        
         # Filter only the results not found
         self.dfOutput = dfResult[~dfResult["Value"]].fillna(method="ffill")
-
-        #dfOutput = dfResult[~dfResult["Value"]].fillna(method="ffill")
         
         return ~self.series.isin(self.dfOutput[self.columnKey])
+
+
+class ValidationColumn(_SeriesValidation):
+    def __init__(self, dfSource ,**kwargs):
+        
+        self.dfSource = dfSource
+        super().__init__(**kwargs)
+
+    @property
+    def default_message(self):
+        return 'Id does not match in the "{}" file '.format(self.MasterFilename)

@@ -10,14 +10,6 @@ import Schema_ANS
 #from pandas_schema.validation import MatchesPatternValidation, InRangeValidation, InListValidation, CustomSeriesValidation, DateFormatValidation, IsDistinctValidation
 
 
-def read_csv(fileInput):
-	"""
-		read un fichier d'entre csv
-	"""
-	reader = pd.read_csv(fileInput, delimiter=';')
-
-	return reader
-	
 def listDataFrame(pathInputs):
 	"""
 		fonction pour convertir tous les fichiers d'entre comme dataframe
@@ -30,7 +22,7 @@ def listDataFrame(pathInputs):
 
 		if os.path.isfile(fileInput):
 
-	 		dfInput = pd.DataFrame(read_csv(fileInput))
+	 		dfInput = pd.read_csv(fileInput, delimiter=';',index_col=False)
 	
 	 		type_file=""
 	 		filename = os.path.basename(fileInput)
@@ -78,16 +70,16 @@ def createResult(files: list):
 		print("fichier: "+ f[0])
 
 		# DataFrame Master
-		# if schema_to_validate == "specialite":
-		# 	errors = Schema_ANS.schemaSpecialite().validate(f[2])
+		#if schema_to_validate == "specialite":
+		# 	errors = Schema_ANS.schemaSpecialite(f[2]).validate(f[2])
 		# if schema_to_validate == "presentation":
-		#   	errors = Schema_ANS.schemaPresentation(dfMaster,nameMaster).validate(f[2])
+		#    	errors = Schema_ANS.schemaPresentation(dfMaster,nameMaster).validate(f[2])
 		# if schema_to_validate == "dispositif":
 		# 	errors = Schema_ANS.schemaDispositif(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
 		# if schema_to_validate == "conditionnement":
-		#  	errors = Schema_ANS.schemaConditionnement(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
-		if schema_to_validate == "evenement":
-			errors = Schema_ANS.schemaEvenement(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
+		#   	errors = Schema_ANS.schemaConditionnement(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
+		# if schema_to_validate == "evenement":
+		# 	errors = Schema_ANS.schemaEvenement(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
 		if schema_to_validate == "specialiteEvenement":
 			errors = Schema_ANS.schemaSpecialiteEvenement(dfMaster,f[2],nameMaster).validate(f[2])
 			

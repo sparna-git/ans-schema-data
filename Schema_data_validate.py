@@ -70,16 +70,16 @@ def createResult(files: list):
 		print("fichier: "+ f[0])
 
 		# DataFrame Master
-		#if schema_to_validate == "specialite":
-		# 	errors = Schema_ANS.schemaSpecialite(f[2]).validate(f[2])
-		# if schema_to_validate == "presentation":
-		#    	errors = Schema_ANS.schemaPresentation(dfMaster,nameMaster).validate(f[2])
-		# if schema_to_validate == "dispositif":
-		# 	errors = Schema_ANS.schemaDispositif(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
-		# if schema_to_validate == "conditionnement":
-		#   	errors = Schema_ANS.schemaConditionnement(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
-		# if schema_to_validate == "evenement":
-		# 	errors = Schema_ANS.schemaEvenement(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
+		if schema_to_validate == "specialite":
+		 	errors = Schema_ANS.schemaSpecialite(f[2]).validate(f[2])
+		if schema_to_validate == "presentation":
+		   	errors = Schema_ANS.schemaPresentation(dfMaster,nameMaster).validate(f[2])
+		if schema_to_validate == "dispositif":
+			errors = Schema_ANS.schemaDispositif(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
+		if schema_to_validate == "conditionnement":
+		  	errors = Schema_ANS.schemaConditionnement(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
+		if schema_to_validate == "evenement":
+		 	errors = Schema_ANS.schemaEvenement(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
 		if schema_to_validate == "specialiteEvenement":
 			errors = Schema_ANS.schemaSpecialiteEvenement(dfMaster,f[2],nameMaster).validate(f[2])
 			

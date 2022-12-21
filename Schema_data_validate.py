@@ -22,25 +22,26 @@ def listDataFrame(pathInputs):
 
 		if os.path.isfile(fileInput):
 
-	 		dfInput = pd.read_csv(fileInput, delimiter=';',index_col=False)
+			print("Lecture du fichier: " + fileInput)
+			dfInput = pd.read_csv(fileInput, delimiter=';',index_col=False,encoding="cp1252")
 	
-	 		type_file=""
-	 		filename = os.path.basename(fileInput)
+			type_file=""
+			filename = os.path.basename(fileInput)
 	 		
-	 		if filename.startswith('1_ANS_Spécialité_pharmaceutique_'):
-	 			type_file="specialite"
-	 		if filename.startswith('2_ANS_Présentation_'):
-	 			type_file="presentation"
-	 		if filename.startswith('2_2_ANS_Présentation_dispositif_'):
-	 			type_file="dispositif"
-	 		if filename.startswith('2_1_ANS_Présentation_conditionnement_'):
-	 			type_file="conditionnement"
-	 		if filename.startswith('2_3_ANS_Présentation_événement_'):
-	 			type_file="evenement"
-	 		if filename.startswith('1_2_ANS_Spécialité_pharmaceutique_événement_'):
-	 			type_file="specialiteEvenement"
+			if filename.startswith('1_ANS_Spécialité_pharmaceutique_'):
+				type_file="specialite"
+			if filename.startswith('2_ANS_Présentation_'):
+				type_file="presentation"
+			if filename.startswith('2_2_ANS_Présentation_dispositif_'):
+				type_file="dispositif"
+			if filename.startswith('2_1_ANS_Présentation_conditionnement_'):
+				type_file="conditionnement"
+			if filename.startswith('2_3_ANS_Présentation_événement_'):
+				type_file="evenement"
+			if filename.startswith('1_2_ANS_Spécialité_pharmaceutique_événement_'):
+				type_file="specialiteEvenement"
 
-	 		dfList.append([filename,type_file,dfInput])
+			dfList.append([filename,type_file,dfInput])
 
 	return dfList
 
@@ -67,7 +68,7 @@ def createResult(files: list):
 	for f in files:
 
 		schema_to_validate=f[1]
-		print("fichier: "+ f[0])
+		print("Vérification du fichier: "+ f[0])
 
 		# DataFrame Master
 		if schema_to_validate == "specialite":
@@ -119,5 +120,6 @@ if __name__ == '__main__':
 
 	"""
 	if not  result.empty:
+		print("Ecriture des rapports de validation dans '"+ output_result+"'")
 		result.to_html(output_result+'.html',header=True,index=False, notebook=False, justify="center")
 		result.to_csv(output_result+'.csv',header=True,index=False)

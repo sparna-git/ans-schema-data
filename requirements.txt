@@ -1,1 +1,2 @@
 pandas-schema==0.3.6
+chardet===5.1.0

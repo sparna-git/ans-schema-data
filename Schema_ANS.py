@@ -47,7 +47,7 @@ def schemaSpecialite(dfSource):
 										ValidationColumnStatus(dfSource)
 										],allow_empty=True),
 
-			Column('Procédure', [InListValidation(["Autorisation d'importation parallèle", 'Procédure centralisée','Procédure de reconnaissance mutuelle', 'Procédure nationale']),
+			Column('Procédure', [InListValidation(["Autorisation d'importation parallèle", 'Procédure centralisée','Procédure décentralisée', 'Procédure de reconnaissance mutuelle', 'Procédure nationale']),
 							(CustomSeriesValidation(lambda x: x.str.len() > 0, 'This Column is required')) #fonction pour valider que la colonne doit être présent obligatoirement 
 							]),
 

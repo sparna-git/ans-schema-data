@@ -3,7 +3,7 @@ from io import StringIO
 from pandas_schema import Column, Schema
 from pandas_schema.validation import MatchesPatternValidation, InRangeValidation, InListValidation, CustomSeriesValidation, DateFormatValidation, IsDistinctValidation
 
-from validation_ans_schema import MasterDetail, ValidationLongColumn, ValidationColumnStatus, validateDateAutoColumn, validateEvntMarColumn
+from validation_ans_schema import MasterDetail, ValidationLongColumn, ValidationColumnStatus, validateDateAutoColumn, validateEvntMarColumn, validateIsDataColonne
 
 """
 	Tutoriale:
@@ -18,7 +18,7 @@ from validation_ans_schema import MasterDetail, ValidationLongColumn, Validation
 
 
 	MasterDetail(FileMaster, 'Code CIS', MasterFileName)
-	(CustomSeriesValidation(lambda x: x.str.len() > 0, 'This Column is required')) fonction pour valider que la colonne doit être présent obligatoirement 
+	(CustomSeriesValidation(lambda x: x.str.len() > 0, 'La coLonne doit être obligatoire')) fonction pour valider que la colonne doit être présent obligatoirement 
 
 """
 
@@ -29,15 +29,15 @@ def schemaSpecialite(dfSource):
 								IsDistinctValidation() #Le code doit être unique								
 								]),
 			Column('Nom Spécialité', 
-				[(CustomSeriesValidation(lambda x: x.str.len() > 0, 'This Column is required'))   # fonction pour valider que la colonne doit être présent obligatoirement 
+				[(CustomSeriesValidation(lambda x: x.str.len() > 0, 'La colonne doit être obligatoire'))   # fonction pour valider que la colonne doit être présent obligatoirement 
 				]),
 			
 			Column('Statut AMM', [InListValidation(['Actif', 'Archivé', 'Suspension']),
-							  (CustomSeriesValidation(lambda x: x.str.len() > 0, 'This Column is required')) #fonction pour valider que la colonne doit être présent obligatoirement 
+							  (CustomSeriesValidation(lambda x: x.str.len() > 0, 'La coLonne doit être obligatoire')) #fonction pour valider que la colonne doit être présent obligatoirement 
 							  ]), 
 
 			Column('Date AMM', [DateFormatValidation('%d/%m/%Y'), #Valider que le formatage de la date soit accorde indiqué
-								(CustomSeriesValidation(lambda x: x.str.len() > 0, 'This Column is required')) #fonction pour valider que la colonne doit être présent obligatoirement 
+								(CustomSeriesValidation(lambda x: x.str.len() > 0, 'La coLonne doit être obligatoire')) #fonction pour valider que la colonne doit être présent obligatoirement 
 								]),
 
 			Column('Date Auto',[DateFormatValidation('%d/%m/%Y') #Valider que le formatage de la date soit accorde indiqué
@@ -48,12 +48,12 @@ def schemaSpecialite(dfSource):
 										],allow_empty=True),
 
 			Column('Procédure', [InListValidation(["Autorisation d'importation parallèle", 'Procédure centralisée','Procédure décentralisée', 'Procédure de reconnaissance mutuelle', 'Procédure nationale']),
-							(CustomSeriesValidation(lambda x: x.str.len() > 0, 'This Column is required')) #fonction pour valider que la colonne doit être présent obligatoirement 
+							(CustomSeriesValidation(lambda x: x.str.len() > 0, 'La coLonne doit être obligatoire')) #fonction pour valider que la colonne doit être présent obligatoirement 
 							]),
 
-			Column('Lib_ATC', [(CustomSeriesValidation(lambda x: x.str.len() > 0, 'This Column is required'))]), #fonction pour valider que la colonne doit être présent obligatoirement 
-			Column('Code_ATC', [(CustomSeriesValidation(lambda x: x.str.len() > 0, 'This Column is required'))]), #fonction pour valider que la colonne doit être présent obligatoirement 
-			Column('Classe virtuelle', [(CustomSeriesValidation(lambda x: x.str.len() > 0, 'This Column is required'))]), #fonction pour valider que la colonne doit être présent obligatoirement 
+			Column('Lib_ATC', [(CustomSeriesValidation(lambda x: x.str.len() > 0, 'La coLonne doit être obligatoire'))]), #fonction pour valider que la colonne doit être présent obligatoirement 
+			Column('Code_ATC', [(CustomSeriesValidation(lambda x: x.str.len() > 0, 'La coLonne doit être obligatoire'))]), #fonction pour valider que la colonne doit être présent obligatoirement 
+			Column('Classe virtuelle', [(CustomSeriesValidation(lambda x: x.str.len() > 0, 'La coLonne doit être obligatoire'))]), #fonction pour valider que la colonne doit être présent obligatoirement 
 
 			Column('commentaire ACP') #La colonne doit être présent dans le fichier d'entre
 	])
@@ -65,8 +65,8 @@ def schemaPresentation(FileMaster,MasterFileName):
 	schema_presentation = Schema([
 			Column('Code CIS', [MasterDetail(FileMaster, 'Code CIS', MasterFileName)]), # Doit être une chaine de caractères à 8 chiffres et obligatoire
 			Column('Code CIP13', [MatchesPatternValidation(r'\d{13}')]), # Doit être une chaine de caractères à 13 chiffres et obligatoire
-			Column('Code CIP7', [MatchesPatternValidation(r'\d{7}')]), # Doit être une chaine de caractères à 7 chiffres et obligatoire
-			Column('Nom Presentation',[(CustomSeriesValidation(lambda x: x.str.len() > 0, 'This Column is required'))]) #fonction pour valider que la colonne doit être présent obligatoirement 
+			Column('Code CIP7'),
+			Column('Nom Presentation',[(CustomSeriesValidation(lambda x: x.str.len() > 0, 'La coLonne doit être obligatoire'))]) #fonction pour valider que la colonne doit être présent obligatoirement 
 	])
 
 	return schema_presentation
@@ -87,11 +87,11 @@ def schemaConditionnement(FileMaster,FilePresentation,MasterFileName, Presentati
 	schema_Conditionnement = Schema([
 			Column('Code CIS', [MasterDetail(FileMaster,'Code CIS', MasterFileName)]),
 			Column('Code CIP13', [MasterDetail(FilePresentation,'Code CIP13', PresentationFileName)]),
-			Column('Nom Element', [(CustomSeriesValidation(lambda x: x.str.len() > 0, 'This Column is required'))]), #fonction pour valider que la colonne doit être présent obligatoirement 
+			Column('Nom Element', [(CustomSeriesValidation(lambda x: x.str.len() > 0, 'La coLonne doit être obligatoire'))]), #fonction pour valider que la colonne doit être présent obligatoirement 
 
-			Column('numElement',[ValidationLongColumn(1,1)]),
+			Column('numElement',[ValidationLongColumn()]),
 
-			Column('Recipient', [(CustomSeriesValidation(lambda x: x.str.len() > 0, 'This Column is required'))]) #fonction pour valider que la colonne doit être présent obligatoirement 
+			Column('Recipient', [(CustomSeriesValidation(lambda x: x.str.len() > 0, 'La coLonne doit être obligatoire'))]) #fonction pour valider que la colonne doit être présent obligatoirement 
 		])
 
 	return schema_Conditionnement
@@ -102,13 +102,13 @@ def schemaSpecialiteEvenement(FileMaster,dfSource,MasterFileName):
 		Column('Code CIS', [MasterDetail(FileMaster,'Code CIS', MasterFileName)]),
 		Column('codeEvntSpec'), #La colonne doit être présent dans le fichier de Specilite evenement
 		Column('DateEvnt_Spec',[DateFormatValidation('%d/%m/%Y'),
-							(CustomSeriesValidation(lambda x: x.str.len() > 0, 'This Column is required'))
+							(CustomSeriesValidation(lambda x: x.str.len() > 0, 'La coLonne doit être obligatoire'))
 										]),
 		Column('remTerme Evnt', [InListValidation(['Changement de procédure', 'Changement de statut']),
-							  (CustomSeriesValidation(lambda x: x.str.len() > 0, 'This Column is required')) #fonction pour valider que la colonne doit être présent obligatoirement 
+							  (CustomSeriesValidation(lambda x: x.str.len() > 0, 'La coLonne doit être obligatoire')) #fonction pour valider que la colonne doit être présent obligatoirement 
 							  ]),
 		Column('EvntMar',[InListValidation(['actif', 'archivé', 'archivé (administratif)', 'changement de procédure', 'retire', 'suspension']),
-						  (CustomSeriesValidation(lambda x: x.str.len() > 0, 'This Column is required')) #fonction pour valider que la colonne doit être présent obligatoirement 
+						  (CustomSeriesValidation(lambda x: x.str.len() > 0, 'La coLonne doit être obligatoire')) #fonction pour valider que la colonne doit être présent obligatoirement 
 						  ,validateEvntMarColumn(dfSource,['changement de procédure'],['Changement de procédure'])
 						  ])
 	])
@@ -122,9 +122,9 @@ def schemaEvenement(FileMaster,FilePresentation,MasterFileName, PresentationFile
 		Column('Code CIP13', [MasterDetail(FilePresentation,'Code CIP13', PresentationFileName)]),
 		Column('codeEvntPres'), 	#La colonne doit être présent dans le fichier Evenement
 		Column('DateEvnt_Presentation',[DateFormatValidation('%d/%m/%Y'),
-										(CustomSeriesValidation(lambda x: x.str.len() > 0, 'This Column is required'))
+										(CustomSeriesValidation(lambda x: x.str.len() > 0, 'La coLonne doit être obligatoire'))
 										]),
-		Column('Evnt_Presentation',[(CustomSeriesValidation(lambda x: x.str.len() > 0, 'This Column is required')) #fonction pour valider que la colonne doit être présent obligatoirement 
+		Column('Evnt_Presentation',[(CustomSeriesValidation(lambda x: x.str.len() > 0, 'La coLonne doit être obligatoire')) #fonction pour valider que la colonne doit être présent obligatoirement 
 						]),
 	])
 

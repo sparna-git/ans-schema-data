@@ -13,24 +13,18 @@ class ValidationLongColumn(_SeriesValidation):
     Checks that each element in the series is within a given numerical range
     """
 
-    def __init__(self, min: float = -math.inf, max: float = math.inf, **kwargs):
-        """
-        :param min: The minimum (inclusive) value to accept
-        :param max: The maximum (exclusive) value to accept
-        """
-        self.min = min
-        self.max = max
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     @property
     def default_message(self):
-        return 'was not in the range {}'.format(self.min, self.max)
+        return 'Un seul chiffre entre 0 et 9'
 
     def validate(self, series: pd.Series) -> pd.Series:
-        series = pd.to_numeric(series, errors="coerce")
-        return (series >= self.min) & (series <= self.max)
+        self.series = series
 
-# function custom
+        return self.series.between(1,9,inclusive=True)
+
 class MasterDetail(_SeriesValidation):
 
     def __init__(self, masterSource, columnKey : str, MasterFilename ,**kwargs):
@@ -60,7 +54,6 @@ class MasterDetail(_SeriesValidation):
         
         return ~self.series.isin(self.dfOutput[self.columnKey])
 
-
 class ValidationColumnStatus(_SeriesValidation):
     def __init__(self, dfSource ,**kwargs):
         
@@ -69,17 +62,17 @@ class ValidationColumnStatus(_SeriesValidation):
 
     @property
     def default_message(self):
-        return 'la colonne "Statut AMM" est different à "Archivé" '
+        return 'la colonne "Statut AMM" est different à "Archivé" or "Suspension"'
 
     def validate(self, series: pd.Series) -> pd.Series:
         self.series = series
 
         df = self.dfSource[['Statut AMM','Date fin de statut actif AMM']]
-        dfOut = df[~df['Date fin de statut actif AMM'].isnull()]
-        self.dfValue = dfOut[dfOut['Statut AMM'] != 'Archivé'].fillna(method="ffill")
+        #dfOut = df[~df['Date fin de statut actif AMM'].isnull()]
+        #.fillna(method="ffill")
+        self.dfValue = df[(~df['Date fin de statut actif AMM'].isnull()) & ((df['Statut AMM'] != 'Archivé') | (df['Statut AMM'] != 'Suspension'))]
         
         return ~self.series.isin(self.dfValue['Date fin de statut actif AMM'])
-
 
 class validateDateAutoColumn(_SeriesValidation):
 
@@ -101,8 +94,6 @@ class validateDateAutoColumn(_SeriesValidation):
        
         return ~self.series.isin(dfout)
 
-
-
 class validateEvntMarColumn(_SeriesValidation):
 
     def __init__(self, dfSource, valuesList : list(), conditionList : list ,**kwargs):
@@ -121,7 +112,30 @@ class validateEvntMarColumn(_SeriesValidation):
 
         self.series = series
         
-        df = self.dfSource[self.dfSource['remTerme Evnt'].isin(self.conditionList)]
-        dfOutput = df[df['EvntMar'].isin(self.valuesList)]
+        df = self.dfSource #[self.dfSource['remTerme Evnt'].isin(self.conditionList)]
+        outSerie = pd.Series(df['EvntMar'].where(df['remTerme Evnt'].isin(self.conditionList) & ~df['EvntMar'].isin(self.valuesList)))
+
+        return outSerie.astype(str).str.contains("nan")
+
+class validateIsDataColonne(_SeriesValidation):
+    def __init__(self ,**kwargs):
+        super().__init__(**kwargs)
+
+    @property
+    def default_message(self):
+        return 'la valuer de chiffre est different à 7'
+
+    def validate(self, series: pd.Series) -> pd.Series:
+        self.series = series
+
+        if self.series.dtype == 'float64':
+            s = self.series.astype('Int32').astype(str)            
+        else:
+            s = self.series
+
+
+        print(s.where(s.astype(str).str.fillna(method='bfill')))
+
         
-        return self.series.isin(dfOutput)
+
+        return 1

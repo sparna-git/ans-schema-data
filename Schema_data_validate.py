@@ -1,14 +1,9 @@
 import pandas as pd
 import sys
 import os
-#import chardet
-#from io import StringIO
 from pandas_schema import Schema
-
 import Schema_ANS
-#from validation_ans_schema import MasterDetail, ValidationLongColumn
-#from pandas_schema.validation import MatchesPatternValidation, InRangeValidation, InListValidation, CustomSeriesValidation, DateFormatValidation, IsDistinctValidation
-
+import shutil
 
 def listDataFrame(pathInputs):
 	"""
@@ -74,13 +69,13 @@ def createResult(files: list):
 		if schema_to_validate == "specialite":
 		 	errors = Schema_ANS.schemaSpecialite(f[2]).validate(f[2])
 		if schema_to_validate == "presentation":
-		   	errors = Schema_ANS.schemaPresentation(dfMaster,nameMaster).validate(f[2])
+		    	errors = Schema_ANS.schemaPresentation(dfMaster,nameMaster).validate(f[2])
 		if schema_to_validate == "dispositif":
-			errors = Schema_ANS.schemaDispositif(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
+		 	errors = Schema_ANS.schemaDispositif(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
 		if schema_to_validate == "conditionnement":
-		  	errors = Schema_ANS.schemaConditionnement(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
+		   	errors = Schema_ANS.schemaConditionnement(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
 		if schema_to_validate == "evenement":
-		 	errors = Schema_ANS.schemaEvenement(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
+		  	errors = Schema_ANS.schemaEvenement(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
 		if schema_to_validate == "specialiteEvenement":
 			errors = Schema_ANS.schemaSpecialiteEvenement(dfMaster,f[2],nameMaster).validate(f[2])
 			
@@ -120,6 +115,17 @@ if __name__ == '__main__':
 
 	"""
 	if not  result.empty:
-		print("Ecriture des rapports de validation dans '"+ output_result+"'")
-		result.to_html(output_result+'.html',header=True,index=False, notebook=False, justify="center")
-		result.to_csv(output_result+'.csv',header=True,index=False)
+		# recuperer le path d'input
+		output_result_files = os.path.join(source_files,'output')
+		
+		shutil.rmtree(output_result_files)
+
+		os.mkdir(output_result_files)
+
+		print("Ecriture des rapports de validation dans '"+ output_result_files+"'")
+
+		csv_file = output_result+'.csv'
+		html_file = output_result+'.html'
+
+		result.to_html(os.path.join(output_result_files,html_file),header=True,index=False, notebook=False, justify="center")
+		result.to_csv(os.path.join(output_result_files,csv_file),header=True,index=False)

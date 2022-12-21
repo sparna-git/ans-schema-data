@@ -1,5 +1,12 @@
 
-# Configurer et lancer
+# Installer
+
+1. Récupérer le code de ce repository avec git, et se positionner dans le répertoire du script
+
+```
+git clone git@github.com:sparna-git/ans-schema-data.git
+cd ans-schema-data
+```
 
 1. Installer pip
 
@@ -35,14 +42,31 @@ L'invite de commande change et le nom de l'environnement virtual apparait entre 
 pip install -r requirements.txt
 ```
 
-6. Lancer le script
+# Exécuter le script
 
+1. Se positionner dans l'environnement virtuel si on n'y est pas déjà
 
 ```
-python3.10 Schema_data_validate.py <répertoire d'input contenant les fichiers CSV> <répertoire de sortie des rapports>
+cd ans-schema-data
+Sur Windows : virtualenv/Scripts/activate.bat
+Sur Linux : source virtualenv/bin/activate
 ```
 
-Pas exemple :
+2. Copier les fichier csv à vérifier dans un sous-répertoire "input" (créer le répertoire à la main) :
+
+```
+mkdir input
+# Copier les fichier csv :
+# cp .... input
+```
+
+3. Lancer le script
+
+```
+python3.10 Schema_data_validate.py <répertoire d'input contenant les CSV> <répertoire de sortie des rapports>
+```
+
+Par exemple :
 
 ```
 python3.10 Schema_data_validate.py input output

@@ -8,6 +8,19 @@ from pandas_schema.validation import _SeriesValidation, CustomSeriesValidation
 from pandas_schema import ValidationWarning
 from pandas_schema.errors import PanSchArgumentError
 
+class ColonneObligatoire(_SeriesValidation):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    @property
+    def default_message(self):
+        return 'La colonne doit être obligatoire'
+
+    def validate(self, series: pd.Series) -> pd.Series:
+        self.series = series
+
+        return ~self.series.isna()
+
 class ValidationLongColumn(_SeriesValidation):
     """
     Checks that each element in the series is within a given numerical range
@@ -68,11 +81,8 @@ class ValidationColumnStatus(_SeriesValidation):
         self.series = series
 
         df = self.dfSource[['Statut AMM','Date fin de statut actif AMM']]
-        #dfOut = df[~df['Date fin de statut actif AMM'].isnull()]
-        #.fillna(method="ffill")
-        self.dfValue = df[(~df['Date fin de statut actif AMM'].isnull()) & ((df['Statut AMM'] != 'Archivé') | (df['Statut AMM'] != 'Suspension'))]
-        
-        return ~self.series.isin(self.dfValue['Date fin de statut actif AMM'])
+        outputSerie = pd.Series(df['Date fin de statut actif AMM'].dropna().where(df['Statut AMM'].isin(['Archivé','Suspension'])))
+        return ~outputSerie.astype(str).str.contains("nan")
 
 class validateDateAutoColumn(_SeriesValidation):
 
@@ -112,7 +122,7 @@ class validateEvntMarColumn(_SeriesValidation):
 
         self.series = series
         
-        df = self.dfSource #[self.dfSource['remTerme Evnt'].isin(self.conditionList)]
+        df = self.dfSource
         outSerie = pd.Series(df['EvntMar'].where(df['remTerme Evnt'].isin(self.conditionList) & ~df['EvntMar'].isin(self.valuesList)))
 
         return outSerie.astype(str).str.contains("nan")
@@ -128,14 +138,8 @@ class validateIsDataColonne(_SeriesValidation):
     def validate(self, series: pd.Series) -> pd.Series:
         self.series = series
 
-        if self.series.dtype == 'float64':
-            s = self.series.astype('Int32').astype(str)            
-        else:
-            s = self.series
-
-
-        print(s.where(s.astype(str).str.fillna(method='bfill')))
-
-        
+        df = pd.DataFrame(self.series.astype('Int32').astype(str), dtype='str')
+        df.applymap(str)
+        print(df)
 
         return 1

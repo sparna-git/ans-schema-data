@@ -1,6 +1,7 @@
 import pandas as pd
 import sys
 import os
+import errno
 from pandas_schema import Schema
 import Schema_ANS
 import shutil
@@ -19,6 +20,7 @@ def listDataFrame(pathInputs):
 
 			print("Lecture du fichier: " + fileInput)
 			dfInput = pd.read_csv(fileInput, delimiter=';',index_col=False,encoding="cp1252")
+			dfInput.index = dfInput.index + 2
 	
 			type_file=""
 			filename = os.path.basename(fileInput)
@@ -35,6 +37,8 @@ def listDataFrame(pathInputs):
 				type_file="evenement"
 			if filename.startswith('1_2_ANS_Spécialité_pharmaceutique_événement_'):
 				type_file="specialiteEvenement"
+			if filename.startswith('1_3_ANS_Spécialité_pharmaceutique_composition_'):
+				type_file="composition"
 
 			dfList.append([filename,type_file,dfInput])
 
@@ -47,7 +51,9 @@ def createResult(files: list):
 	dfMaster = pd.DataFrame()
 	nameMaster = ""
 	dfPresentation = pd.DataFrame()
-	namePresentation = "" 
+	namePresentation = ""
+	dfPresentationDispositif = pd.DataFrame()
+	namePresentationDispositif = "" 
 	for m in files:
 		if m[1] == "specialite":
 			nameMaster = m[0]
@@ -55,6 +61,9 @@ def createResult(files: list):
 		if m[1] == "presentation":
 			namePresentation = m[0]
 			dfPresentation = m[2]
+		if m[1] == "dispositif":
+			dfPresentationDispositif = m[0]
+			namePresentationDispositif = m[2]
 		
 
 
@@ -67,17 +76,19 @@ def createResult(files: list):
 
 		# DataFrame Master
 		if schema_to_validate == "specialite":
-		 	errors = Schema_ANS.schemaSpecialite(f[2]).validate(f[2])
+			errors = Schema_ANS.schemaSpecialite(f[2]).validate(f[2])
 		if schema_to_validate == "presentation":
-		    	errors = Schema_ANS.schemaPresentation(dfMaster,nameMaster).validate(f[2])
+			errors = Schema_ANS.schemaPresentation(dfMaster,nameMaster).validate(f[2])
 		if schema_to_validate == "dispositif":
 		 	errors = Schema_ANS.schemaDispositif(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
 		if schema_to_validate == "conditionnement":
-		   	errors = Schema_ANS.schemaConditionnement(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
+		 	errors = Schema_ANS.schemaConditionnement(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
 		if schema_to_validate == "evenement":
-		  	errors = Schema_ANS.schemaEvenement(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
+		 	errors = Schema_ANS.schemaEvenement(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
 		if schema_to_validate == "specialiteEvenement":
 			errors = Schema_ANS.schemaSpecialiteEvenement(dfMaster,f[2],nameMaster).validate(f[2])
+		if schema_to_validate == "composition":
+			errors = Schema_ANS.schemaSpecialiteComposition(dfMaster,nameMaster).validate(f[2])
 			
 		# 
 		if len(errors) > 0:
@@ -115,17 +126,17 @@ if __name__ == '__main__':
 
 	"""
 	if not  result.empty:
-		# recuperer le path d'input
-		output_result_files = os.path.join(source_files,'output')
+
+		dirOutput = ''
+		try:
+			os.stat(output_result)			
+		except:
+			os.mkdir(output_result)
 		
-		shutil.rmtree(output_result_files)
+		print("Ecriture des rapports de validation dans '"+ output_result +"'")
 
-		os.mkdir(output_result_files)
+		csv_file = 'rappot.csv'
+		html_file = 'rapport.html'
 
-		print("Ecriture des rapports de validation dans '"+ output_result_files+"'")
-
-		csv_file = output_result+'.csv'
-		html_file = output_result+'.html'
-
-		result.to_html(os.path.join(output_result_files,html_file),header=True,index=False, notebook=False, justify="center")
-		result.to_csv(os.path.join(output_result_files,csv_file),header=True,index=False)
+		result.to_html(os.path.join(output_result,html_file),header=True,index=False, notebook=False, justify="center")
+		result.to_csv(os.path.join(output_result,csv_file),header=True,index=False)

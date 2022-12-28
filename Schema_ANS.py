@@ -1,7 +1,7 @@
 import chardet
 from io import StringIO
 from pandas_schema import Column, Schema
-from pandas_schema.validation import MatchesPatternValidation, InRangeValidation, InListValidation, CustomSeriesValidation, DateFormatValidation, IsDistinctValidation
+from pandas_schema.validation import MatchesPatternValidation, InRangeValidation, InListValidation, CustomSeriesValidation, IsDistinctValidation
 
 import datetime
 from datetime import datetime
@@ -16,7 +16,7 @@ from validation_ans_schema import MasterDetail, ValidationLongColumn, Validation
 	MatchesPatternValidation(r' Nombre de caracteres')   	function pour valider le numero de chiffres
 	IsDistinctValidation()     								Validation de la colonne que les données doit être unique 
 	InListValidation(['Actif', 'Archivé', 'Suspension'])    Valider que les données de la colonne se trouve dans la liste parametrée
-	DateFormatValidation('%d/%m/%Y')  						Valider que le formatage de la date soit accorde indiqué
+	
 
 
 	MasterDetail(FileMaster, 'Code CIS', MasterFileName)
@@ -39,14 +39,14 @@ def schemaSpecialite(dfSource, dfPresentation, dfConditionnement, namePresentati
 							  ColonneObligatoire()
 							  ]), 
 
-			Column('Date AMM', [DateFormatValidation('%d/%m/%Y'), #Valider que le formatage de la date soit accorde indiqué
+			Column('Date AMM', [validateFmtDateColumn('%d/%m/%Y'), #Valider que le formatage de la date soit accorde indiqué
 								ColonneObligatoire()
 								]),
 
-			Column('Date Auto',[DateFormatValidation('%d/%m/%Y') #Valider que le formatage de la date soit accorde indiqué
+			Column('Date Auto',[validateFmtDateColumn('%d/%m/%Y') #Valider que le formatage de la date soit accorde indiqué
 								, validateDateAutoColumn(dfSource)
 								],allow_empty=True),
-			Column('Date fin de statut actif AMM',[DateFormatValidation('%d/%m/%Y'), #Valider que le formatage de la date soit accorde indiqué
+			Column('Date fin de statut actif AMM',[validateFmtDateColumn('%d/%m/%Y'), #Valider que le formatage de la date soit accorde indiqué
 										ValidationColumnStatus(dfSource)
 										],allow_empty=True),
 
@@ -107,7 +107,7 @@ def schemaSpecialiteEvenement(FileMaster,dfSource,MasterFileName):
 	schema_SpecialiteEvenement = Schema([
 		Column('Code CIS', [MasterDetail(FileMaster,'Code CIS', MasterFileName),ColonneObligatoire()]),
 		Column('codeEvntSpec',[ColonneObligatoire()]),
-		Column('DateEvnt_Spec',[DateFormatValidation('%d/%m/%Y'),
+		Column('DateEvnt_Spec',[validateFmtDateColumn('%d/%m/%Y'),
 							ColonneObligatoire()
 										]),
 		Column('remTerme Evnt', [InListValidation(['Changement de procédure', 'Changement de statut']),
@@ -127,7 +127,7 @@ def schemaEvenement(FileMaster,FilePresentation,MasterFileName, PresentationFile
 		Column('Code CIS', [MasterDetail(FileMaster,'Code CIS', MasterFileName), ColonneObligatoire()]),
 		Column('Code CIP13', [MasterDetail(FilePresentation,'Code CIP13', PresentationFileName), ColonneObligatoire()]),
 		Column('codeEvntPres',[ColonneObligatoire()]),
-		Column('DateEvnt_Presentation',[DateFormatValidation('%d/%m/%Y'),
+		Column('DateEvnt_Presentation',[validateFmtDateColumn('%d/%m/%Y'),
 										ColonneObligatoire()
 										]),
 		Column('Evnt_Presentation',[ColonneObligatoire()]),
@@ -172,7 +172,7 @@ def schemaListeEvenementPresentation(dfSource):
 		Column('Type_Evenement_Pre'),
 		Column('Desc_Evenement_Pre'),
 		Column('Date_Creation_Evenement_Pre',[ColonneObligatoire(),
-				DateFormatValidation('%d/%m/%Y')
+				validateFmtDateColumn('%d/%m/%Y')
 			]),
 		Column('Date_Modif__Evenement_Pre',[validateFmtDateColumn('%d/%m/%Y')]),
 		Column('Date_Inactiv_Evenement_Pre',[dateApresCreation(dfSource[['Date_Creation_Evenement_Pre','Date_Inactiv_Evenement_Pre']]),validateFmtDateColumn('%d/%m/%Y')])
@@ -189,7 +189,7 @@ def schemaListeProcedure(dfSource):
 		Column('Lib_Proc',[ColonneObligatoire()]),
 		Column('Desc_proc'),
 		Column('Date_Creation_Proc',[ColonneObligatoire(),
-				DateFormatValidation('%d/%m/%Y')
+				validateFmtDateColumn('%d/%m/%Y')
 			]),
 		Column('Date_Modif_Proc',[validateFmtDateColumn('%d/%m/%Y')]),
 		Column('Date_Inactiv_proc',[dateApresCreation(dfSource[['Date_Creation_Proc','Date_Inactiv_proc']]),validateFmtDateColumn('%d/%m/%Y')])
@@ -206,7 +206,7 @@ def schemaListeStatus(dfSource):
 		Column('Lib_Statut',[ColonneObligatoire()]),
 		Column('Desc_statut'),
 		Column('Date_Creation_Statut',[ColonneObligatoire(),
-				DateFormatValidation('%d/%m/%Y')
+				validateFmtDateColumn('%d/%m/%Y')
 			]),
 		Column('Date_Modif_Statut',[validateFmtDateColumn('%d/%m/%Y')]),
 		Column('Date_Inactiv_Statut',[dateApresCreation(dfSource[['Date_Creation_Statut','Date_Inactiv_Statut']]), 

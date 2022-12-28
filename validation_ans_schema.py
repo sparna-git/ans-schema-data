@@ -2,6 +2,7 @@ import math
 import pandas as pd
 import numpy as np
 import datetime
+import re
 from pandas_schema import column
 from pandas_schema.validation import _SeriesValidation, CustomSeriesValidation
 from pandas_schema import ValidationWarning
@@ -135,31 +136,43 @@ class longueurColonne(_SeriesValidation):
         return 'la valuer est different à {} chiffre(s)'.format(self.nlongueur)
 
     def validation_longeur_value(self, value):
-        print(value)
-        try:
-            if value.astype(str).str.len() == self.nlongueur:
+
+        if value.isnumeric():
+            try:
+                len(value) == int(self.nlongueur)
+                return False
+            except ValueError:
                 return True
-        except:
+        else:
+            return False
+       
+    def validate(self, series: pd.Series) -> pd.Series:
+        
+        return ~series.astype(str).apply(self.validation_longeur_value)
+
+class validationCommentaire_ACP(_SeriesValidation):
+
+    def __init__(self, condition ,**kwargs):
+        self.condition = condition
+        super().__init__(**kwargs)
+
+    @property
+    def default_message(self):
+        return ' la valeur doit être une valeur dans {} '.format(self.condition)
+
+    def valida_result(self, value):
+
+        try:
+            self.condition.index(value)
+            return True
+        except ValueError:
             if value == 'nan':
                 return True
             else:
                 return False
 
     def validate(self, series: pd.Series) -> pd.Series:
-        return series.astype(str).apply(self.validation_longeur_value)
-
-class validationCommentaire_ACP(_SeriesValidation):
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-    @property
-    def default_message(self):
-        return ' la valeur doit être une valeur dans ["Enregistrement homéo", "Spécialité de phyto", "Spécialité contenant plus de 3 SA"]'
-
-    def validate(self, series: pd.Series) -> pd.Series:
-        
-        return series.isin(['Enregistrement homéo', 'Spécialité de phyto', 'Spécialité contenant plus de 3 SA'])
+        return series.astype(str).apply(self.valida_result)
 
 class validateDateColumn(_SeriesValidation):
 
@@ -214,6 +227,10 @@ class dateApresCreation(_SeriesValidation):
         
         # Pour valider le format de la date
         dfValidatefmt = self.dfSource[self.dfSource[self.dfSource.columns[1]].notnull()]
-        self.outfmtSerie = pd.Series(dfValidatefmt[self.dfSource.columns[1]].astype(str).apply(self.valid_date_fmt))
         
-        return (~self.outSerie.isin(self.series)) | (self.outfmtSerie.isin(self.series))
+        print(dfValidatefmt)
+        #self.outfmtSerie = pd.Series(dfValidatefmt[self.dfSource.columns[1]].astype(str).apply(self.valid_date_fmt))
+        
+        
+
+        return (~self.outSerie.isin(self.series)) #| (self.outfmtSerie.isin(self.series))

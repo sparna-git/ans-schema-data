@@ -58,7 +58,7 @@ def schemaSpecialite(dfSource, dfPresentation, dfConditionnement, namePresentati
 			Column('Code_ATC', [ColonneObligatoire()]), #fonction pour valider que la colonne doit être présent obligatoirement 
 			Column('Classe virtuelle', [ColonneObligatoire()]), #fonction pour valider que la colonne doit être présent obligatoirement 
 
-			Column('commentaire ACP',[validationCommentaire_ACP()])
+			Column('commentaire ACP',[validationCommentaire_ACP(['Enregistrement homéo', 'Spécialité de phyto', 'Spécialité contenant plus de 3 SA'])])
 	])
 
 	return schema_Specialite

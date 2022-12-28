@@ -139,16 +139,15 @@ class longueurColonne(_SeriesValidation):
 
         if value.isnumeric():
             try:
-                len(value) == int(self.nlongueur)
-                return False
-            except ValueError:
+                len( str( int( input_variable) ) ) == self.nlongueur
                 return True
+            except ValueError:
+                return False
         else:
-            return False
+            return True
        
     def validate(self, series: pd.Series) -> pd.Series:
-        
-        return ~series.astype(str).apply(self.validation_longeur_value)
+        return series.astype(str).apply(self.validation_longeur_value)
 
 class validationCommentaire_ACP(_SeriesValidation):
 
@@ -227,10 +226,10 @@ class dateApresCreation(_SeriesValidation):
         
         # Pour valider le format de la date
         dfValidatefmt = self.dfSource[self.dfSource[self.dfSource.columns[1]].notnull()]
+        dfValuefmt = dfValidatefmt[~dfValidatefmt[dfValidatefmt.columns[1]].astype(str).apply(self.valid_date_fmt)]
+        #self.outfmtSerie = pd.Series(dfValidatefmt[dfValidatefmt.columns[1]].astype(str).apply(self.valid_date_fmt))
+        self.outfmtSerie = pd.Series(dfValuefmt[dfValuefmt.columns[1]])
         
-        print(dfValidatefmt)
-        #self.outfmtSerie = pd.Series(dfValidatefmt[self.dfSource.columns[1]].astype(str).apply(self.valid_date_fmt))
-        
-        
+        print(series.isin(self.outSerie))
 
-        return (~self.outSerie.isin(self.series)) #| (self.outfmtSerie.isin(self.series))
+        return (~series.isin(self.outSerie)) #(~series.isin(self.outSerie)) #| (~series.isin(self.outfmtSerie)) #(~self.outSerie.isin(self.series)) #| (self.outfmtSerie.isin(self.series))

@@ -84,37 +84,36 @@ def createResult(files: list):
 		schema_to_validate=f[1]
 		print("Vérification du fichier: "+ f[0])
 
-
-		# Validation de function
-		#if schema_to_validate == "specialite":
-		#	errors = Schema_ANS.schemaSpecialite(f[2], dfPresentation, dfConditionnement, namePresentation,nameConditionnement).validate(f[2])
-		#if schema_to_validate == "dispositif":
-		#  	errors = Schema_ANS.schemaDispositif(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
-		#if schema_to_validate == "conditionnement":
-		#  	errors = Schema_ANS.schemaConditionnement(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
-		#if schema_to_validate == "evenement":
-		#  	errors = Schema_ANS.schemaEvenement(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
-		#if schema_to_validate == "specialiteEvenement":
-		# 	errors = Schema_ANS.schemaSpecialiteEvenement(dfMaster,f[2],nameMaster).validate(f[2])
-		#if schema_to_validate == "composition":
-		#	df = f[2]
-		#	df['Code substance cle'] = df['Code CIS'].astype(str)+df['numElement'].astype(str)+df['Code substance'].astype(str)
-		#	errors = Schema_ANS.schemaSpecialiteComposition(dfMaster,nameMaster).validate(df)
+		if schema_to_validate == "specialite":
+			errors = Schema_ANS.schemaSpecialite(f[2], dfPresentation, dfConditionnement, namePresentation,nameConditionnement).validate(f[2])
+		if schema_to_validate == "dispositif":
+		  	errors = Schema_ANS.schemaDispositif(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
+		if schema_to_validate == "conditionnement":
+		  	errors = Schema_ANS.schemaConditionnement(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
+		if schema_to_validate == "evenement":
+		  	errors = Schema_ANS.schemaEvenement(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
+		if schema_to_validate == "specialiteEvenement":
+		 	errors = Schema_ANS.schemaSpecialiteEvenement(dfMaster,f[2],nameMaster).validate(f[2])
+		if schema_to_validate == "composition":
+			df = f[2]
+			df['Code substance cle'] = df['Code CIS'].astype(str)+df['numElement'].astype(str)+df['Code substance'].astype(str)
+			errors = Schema_ANS.schemaSpecialiteComposition(dfMaster,nameMaster).validate(df)
 
 		# A valider
 		
-		if schema_to_validate == "presentation":
+		#if schema_to_validate == "presentation":
 			
-			if f[2]['Code CIP7'].dtype == 'float64':
-				f[2]['Code CIP7'] = f[2]['Code CIP7'].astype('Int32').astype(str)
+		#	if f[2]['Code CIP7'].dtype == 'float64':
+		#		f[2]['Code CIP7'] = f[2]['Code CIP7'].astype('Int32').astype(str)
 
-			errors = Schema_ANS.schemaPresentation(dfMaster,nameMaster,dfPresentationDispositif,namePresentationDispositif).validate(f[2])
+		#	errors = Schema_ANS.schemaPresentation(dfMaster,nameMaster,dfPresentationDispositif,namePresentationDispositif).validate(f[2])
 		
-		#if schema_to_validate == "list_procedure":
-		#	errors = Schema_ANS.schemaListeProcedure(f[2]).validate(f[2])
+		if schema_to_validate == "list_procedure":
+			errors = Schema_ANS.schemaListeProcedure(f[2]).validate(f[2])
 		#if schema_to_validate == "liste_événements_présentations":
 		#	errors = Schema_ANS.schemaListeEvenementPresentation().validate(f[2])
 		#if schema_to_validate == "liste_statuts":
+		#	print(f[2])
 		#	errors = Schema_ANS.schemaListeStatus(f[2]).validate(f[2])
 
 		# 

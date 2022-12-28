@@ -3,7 +3,9 @@ from io import StringIO
 from pandas_schema import Column, Schema
 from pandas_schema.validation import MatchesPatternValidation, InRangeValidation, InListValidation, CustomSeriesValidation, DateFormatValidation, IsDistinctValidation
 
-from validation_ans_schema import MasterDetail, ValidationLongColumn, ValidationColumnStatus, validateDateAutoColumn, validateEvntMarColumn, validateIsDataColonne, ColonneObligatoire
+import datetime
+from datetime import datetime
+from validation_ans_schema import MasterDetail, ValidationLongColumn, ValidationColumnStatus, validateDateAutoColumn, validateEvntMarColumn, ColonneObligatoire, validationCommentaire_ACP, longueurColonne, validateDateColumn, dateApresCreation
 
 """
 	Tutoriale:
@@ -23,11 +25,13 @@ from validation_ans_schema import MasterDetail, ValidationLongColumn, Validation
 """
 
 
-def schemaSpecialite(dfSource):
+def schemaSpecialite(dfSource, dfPresentation, dfConditionnement, namePresentation, nameConditionnement):
 	schema_Specialite = Schema([
 			Column('Code CIS', [MatchesPatternValidation(r'\d{8}'), # Doit être une chaine de caractères à 8 chiffres et obligatoire
 								IsDistinctValidation(), #Le code doit être unique								
-								ColonneObligatoire()
+								ColonneObligatoire(),
+								MasterDetail(dfPresentation, 'Code CIS', namePresentation), #Presentation
+								MasterDetail(dfConditionnement, 'Code CIS', nameConditionnement) #Conditionnement
 								]),
 			Column('Nom Spécialité',[ColonneObligatoire()]),
 			
@@ -54,19 +58,22 @@ def schemaSpecialite(dfSource):
 			Column('Code_ATC', [ColonneObligatoire()]), #fonction pour valider que la colonne doit être présent obligatoirement 
 			Column('Classe virtuelle', [ColonneObligatoire()]), #fonction pour valider que la colonne doit être présent obligatoirement 
 
-			Column('commentaire ACP') #La colonne doit être présent dans le fichier d'entre
+			Column('commentaire ACP',[validationCommentaire_ACP()])
 	])
 
 	return schema_Specialite
 
-def schemaPresentation(FileMaster,MasterFileName):
+def schemaPresentation(FileMaster,MasterFileName,dfPDispositif, namePDispositif):
 
 	schema_presentation = Schema([
-			Column('Code CIS', [MasterDetail(FileMaster, 'Code CIS', MasterFileName), ColonneObligatoire()]), # Doit être une chaine de caractères à 8 chiffres et obligatoire
+			Column('Code CIS', [MasterDetail(FileMaster, 'Code CIS', MasterFileName),
+								ColonneObligatoire()
+							 	]),
 			Column('Code CIP13', [MatchesPatternValidation(r'\d{13}'), 
-								  ColonneObligatoire()
+								  ColonneObligatoire(),
+								  MasterDetail(dfPDispositif, 'Code CIP13', namePDispositif)
 								  ]),
-			Column('Code CIP7'),
+			Column('Code CIP7',[longueurColonne(7)]),
 			Column('Nom Presentation',[ColonneObligatoire()])
 	])
 
@@ -78,7 +85,7 @@ def schemaDispositif(FileMaster,FilePresentation,MasterFileName, PresentationFil
 	schema_dispositif = Schema([
 			Column('Code CIS', [MasterDetail(FileMaster,'Code CIS', MasterFileName), ColonneObligatoire()]),
 			Column('Code CIP13', [MasterDetail(FilePresentation,'Code CIP13', PresentationFileName), ColonneObligatoire()]),
-			Column('Nature de dispositif')	#La colonne doit être présent dans le fichier de dispositif
+			Column('Nature de dispositif')
 		])
 
 	return schema_dispositif
@@ -134,25 +141,75 @@ def schemaSpecialiteComposition(FileMaster,MasterFileName):
 		Column('Code CIS',[ColonneObligatoire(),
 					MasterDetail(FileMaster,'Code CIS', MasterFileName)					
 			]),
-		Column('numElement', [ColonneObligatoire(), #(CustomSeriesValidation(lambda x: x.astype(str).str.len() > 0, 'La coLonne doit être obligatoire')),
+		Column('numElement', [ColonneObligatoire(),
 					ValidationLongColumn()		
 				]),
 		Column('Forme pharmaceutique Elmt',[ColonneObligatoire()]),
 		Column('Nom Element', [ColonneObligatoire()]),
 		Column('Référence dosage', [ColonneObligatoire()]),
-		Column('Code substance', [
-				ColonneObligatoire()
-
-			]),
+		Column('Code substance', [ColonneObligatoire()]),
 		Column('Nom Nature', [InListValidation(['Substances actives.', 'Fractions thérapeutiques.']),
 							  ColonneObligatoire()
 							  ]),
 		Column('Sub Dosage'),
-		Column('numOrdreEdit',[ColonneObligatoire()
-
+		Column('numOrdreEdit',[ColonneObligatoire(),
+							   MatchesPatternValidation(r'^[0-9]*$')	
 							]),
 		Column('Dosage'),
-		Column('Nom du composant',[ColonneObligatoire()])
+		Column('Nom du composant'),
+		Column('Code substance cle',[IsDistinctValidation()])
 		])
 
 	return schema_composition
+
+def schemaListeEvenementPresentation(dfSource):
+
+	schema_liste_evenement_presentation = Schema([
+		Column('Id_ANSM_Evenement_Pre',[ColonneObligatoire(),
+							MatchesPatternValidation(r'^[0-9]*$')
+						]),
+		Column('Lib_Evenement_Pre'),		
+		Column('Type_Evenement_Pre'),
+		Column('Desc_Evenement_Pre'),
+		Column('Date_Creation_Evenement_Pre',[ColonneObligatoire(),
+				DateFormatValidation('%d/%m/%Y')
+			]),
+		Column('Date_Modif__Evenement_Pre',[validateDateColumn('%d/%m/%Y')]),
+		Column('Date_Inactiv_Evenement_Pre',[dateApresCreation(dfSource[['Date_Creation_Evenement_Pre','Date_Inactiv_Evenement_Pre']],'%d/%m/%Y')])
+		])
+
+	return schema_liste_evenement_presentation
+
+def schemaListeProcedure(dfSource):
+
+	schema_liste_procedure = Schema([
+		Column('Id_ANSM_proc',[ColonneObligatoire(),
+						MatchesPatternValidation(r'^[0-9]*$')
+						]),
+		Column('Lib_Proc',[ColonneObligatoire()]),
+		Column('Desc_proc'),
+		Column('Date_Creation_Proc',[ColonneObligatoire(),
+				DateFormatValidation('%d/%m/%Y')
+			]),
+		Column('Date_Modif_Proc',[validateDateColumn('%d/%m/%Y')]),
+		Column('Date_Inactiv_proc',[dateApresCreation(dfSource[['Date_Creation_Proc','Date_Inactiv_proc']],'%d/%m/%Y')])
+		])
+
+	return schema_liste_procedure
+
+def schemaListeStatus(dfSource):
+
+	schema_liste_status = Schema([
+		Column('Id_ANSM_Statut',[ColonneObligatoire(),
+						MatchesPatternValidation(r'^[0-9]*$')
+						]),
+		Column('Lib_Statut',[ColonneObligatoire()]),
+		Column('Desc_statut'),
+		Column('Date_Creation_Statut',[ColonneObligatoire(),
+				DateFormatValidation('%d/%m/%Y')
+			]),
+		Column('Date_Modif_Statut',[validateDateColumn('%d/%m/%Y')]),
+		Column('Date_Inactiv_Statut',[dateApresCreation(dfSource[['Date_Creation_Statut','Date_Inactiv_Statut']],'%d/%m/%Y')])
+		])
+
+	return schema_liste_status

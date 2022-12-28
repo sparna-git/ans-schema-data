@@ -39,6 +39,12 @@ def listDataFrame(pathInputs):
 				type_file="specialiteEvenement"
 			if filename.startswith('1_3_ANS_Spécialité_pharmaceutique_composition_'):
 				type_file="composition"
+			if filename.startswith('ANS_Liste_ procédures_'):
+				type_file="list_procedure"
+			if filename.startswith('ANS_Liste_événements_présentations_'):
+				type_file="liste_événements_présentations"
+			if filename.startswith('ANS_Liste_statuts_'):
+				type_file="liste_statuts"
 
 			dfList.append([filename,type_file,dfInput])
 
@@ -54,6 +60,8 @@ def createResult(files: list):
 	namePresentation = ""
 	dfPresentationDispositif = pd.DataFrame()
 	namePresentationDispositif = "" 
+	dfConditionnement = pd.DataFrame()
+	nameConditionnement = ""
 	for m in files:
 		if m[1] == "specialite":
 			nameMaster = m[0]
@@ -62,9 +70,11 @@ def createResult(files: list):
 			namePresentation = m[0]
 			dfPresentation = m[2]
 		if m[1] == "dispositif":
-			dfPresentationDispositif = m[0]
-			namePresentationDispositif = m[2]
-		
+			dfPresentationDispositif = m[2]
+			namePresentationDispositif = m[0]
+		if m[1] == "conditionnement":
+			nameConditionnement = m[0]
+			dfConditionnement = m[2]
 
 
 	logErros = list()
@@ -75,21 +85,33 @@ def createResult(files: list):
 		print("Vérification du fichier: "+ f[0])
 
 		# DataFrame Master
-		if schema_to_validate == "specialite":
-			errors = Schema_ANS.schemaSpecialite(f[2]).validate(f[2])
+		#if schema_to_validate == "specialite":
+		#	errors = Schema_ANS.schemaSpecialite(f[2], dfPresentation, dfConditionnement, namePresentation,nameConditionnement).validate(f[2])
 		if schema_to_validate == "presentation":
-			errors = Schema_ANS.schemaPresentation(dfMaster,nameMaster).validate(f[2])
-		if schema_to_validate == "dispositif":
-		 	errors = Schema_ANS.schemaDispositif(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
-		if schema_to_validate == "conditionnement":
-		 	errors = Schema_ANS.schemaConditionnement(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
-		if schema_to_validate == "evenement":
-		 	errors = Schema_ANS.schemaEvenement(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
-		if schema_to_validate == "specialiteEvenement":
-			errors = Schema_ANS.schemaSpecialiteEvenement(dfMaster,f[2],nameMaster).validate(f[2])
-		if schema_to_validate == "composition":
-			errors = Schema_ANS.schemaSpecialiteComposition(dfMaster,nameMaster).validate(f[2])
 			
+			if f[2]['Code CIP7'].dtype == 'float64':
+				f[2]['Code CIP7'] = f[2]['Code CIP7'].astype('Int64')
+
+			errors = Schema_ANS.schemaPresentation(dfMaster,nameMaster,dfPresentationDispositif,namePresentationDispositif).validate(f[2])
+		# if schema_to_validate == "dispositif":
+		#  	errors = Schema_ANS.schemaDispositif(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
+		#if schema_to_validate == "conditionnement":
+		#  	errors = Schema_ANS.schemaConditionnement(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
+		# if schema_to_validate == "evenement":
+		#  	errors = Schema_ANS.schemaEvenement(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
+		# if schema_to_validate == "specialiteEvenement":
+		# 	errors = Schema_ANS.schemaSpecialiteEvenement(dfMaster,f[2],nameMaster).validate(f[2])
+		#if schema_to_validate == "composition":
+		#	df = f[2]
+		#	df['Code substance cle'] = df['Code CIS'].astype(str)+df['numElement'].astype(str)+df['Code substance'].astype(str)
+		#	errors = Schema_ANS.schemaSpecialiteComposition(dfMaster,nameMaster).validate(df)
+		#if schema_to_validate == "list_procedure":
+		#	errors = Schema_ANS.schemaListeProcedure(f[2]).validate(f[2])
+		#if schema_to_validate == "liste_événements_présentations":
+		#	errors = Schema_ANS.schemaListeEvenementPresentation().validate(f[2])
+		#if schema_to_validate == "liste_statuts":
+		#	errors = Schema_ANS.schemaListeStatus(f[2]).validate(f[2])
+
 		# 
 		if len(errors) > 0:
 			for error in errors:
@@ -101,6 +123,8 @@ def createResult(files: list):
 	if len(logErros) > 0:
 		dfResult = pd.DataFrame(logErros,columns=['Fichier','Ligne','Colonne',"Valeur","Message"])
 	
+
+
 	return dfResult
 	
 

@@ -5,7 +5,7 @@ from pandas_schema.validation import MatchesPatternValidation, InRangeValidation
 
 import datetime
 from datetime import datetime
-from validation_ans_schema import MasterDetail, ValidationLongColumn, ValidationColumnStatus, validateDateAutoColumn, validateEvntMarColumn, ColonneObligatoire, validationCommentaire_ACP, longueurColonne, validateDateColumn, dateApresCreation
+from validation_ans_schema import MasterDetail, ValidationLongColumn, ValidationColumnStatus, validateDateAutoColumn, validateEvntMarColumn, ColonneObligatoire, validationCommentaire_ACP, longueurColonne, validateFmtDateColumn, dateApresCreation
 
 """
 	Tutoriale:
@@ -174,8 +174,8 @@ def schemaListeEvenementPresentation(dfSource):
 		Column('Date_Creation_Evenement_Pre',[ColonneObligatoire(),
 				DateFormatValidation('%d/%m/%Y')
 			]),
-		Column('Date_Modif__Evenement_Pre',[validateDateColumn('%d/%m/%Y')]),
-		Column('Date_Inactiv_Evenement_Pre',[dateApresCreation(dfSource[['Date_Creation_Evenement_Pre','Date_Inactiv_Evenement_Pre']],'%d/%m/%Y')])
+		Column('Date_Modif__Evenement_Pre',[validateFmtDateColumn('%d/%m/%Y')]),
+		Column('Date_Inactiv_Evenement_Pre',[dateApresCreation(dfSource[['Date_Creation_Evenement_Pre','Date_Inactiv_Evenement_Pre']]),validateFmtDateColumn('%d/%m/%Y')])
 		])
 
 	return schema_liste_evenement_presentation
@@ -191,8 +191,8 @@ def schemaListeProcedure(dfSource):
 		Column('Date_Creation_Proc',[ColonneObligatoire(),
 				DateFormatValidation('%d/%m/%Y')
 			]),
-		Column('Date_Modif_Proc',[validateDateColumn('%d/%m/%Y')]),
-		Column('Date_Inactiv_proc',[dateApresCreation(dfSource[['Date_Creation_Proc','Date_Inactiv_proc']],'%d/%m/%Y')])
+		Column('Date_Modif_Proc',[validateFmtDateColumn('%d/%m/%Y')]),
+		Column('Date_Inactiv_proc',[dateApresCreation(dfSource[['Date_Creation_Proc','Date_Inactiv_proc']]),validateFmtDateColumn('%d/%m/%Y')])
 		])
 
 	return schema_liste_procedure
@@ -208,8 +208,9 @@ def schemaListeStatus(dfSource):
 		Column('Date_Creation_Statut',[ColonneObligatoire(),
 				DateFormatValidation('%d/%m/%Y')
 			]),
-		Column('Date_Modif_Statut',[validateDateColumn('%d/%m/%Y')]),
-		Column('Date_Inactiv_Statut',[dateApresCreation(dfSource[['Date_Creation_Statut','Date_Inactiv_Statut']],'%d/%m/%Y')])
+		Column('Date_Modif_Statut',[validateFmtDateColumn('%d/%m/%Y')]),
+		Column('Date_Inactiv_Statut',[dateApresCreation(dfSource[['Date_Creation_Statut','Date_Inactiv_Statut']]), 
+									validateFmtDateColumn('%d/%m/%Y')])
 		])
 
 	return schema_liste_status

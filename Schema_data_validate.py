@@ -85,37 +85,30 @@ def createResult(files: list):
 		print("Vérification du fichier: "+ f[0])
 
 		if schema_to_validate == "specialite":
-			errors = Schema_ANS.schemaSpecialite(f[2], dfPresentation, dfConditionnement, namePresentation,nameConditionnement).validate(f[2])
+		 	errors = Schema_ANS.schemaSpecialite(f[2], dfPresentation, dfConditionnement, namePresentation,nameConditionnement).validate(f[2])
 		if schema_to_validate == "dispositif":
-		  	errors = Schema_ANS.schemaDispositif(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
+		   	errors = Schema_ANS.schemaDispositif(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
 		if schema_to_validate == "conditionnement":
-		  	errors = Schema_ANS.schemaConditionnement(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
+		   	errors = Schema_ANS.schemaConditionnement(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
 		if schema_to_validate == "evenement":
-		  	errors = Schema_ANS.schemaEvenement(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
+		   	errors = Schema_ANS.schemaEvenement(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
 		if schema_to_validate == "specialiteEvenement":
-		 	errors = Schema_ANS.schemaSpecialiteEvenement(dfMaster,f[2],nameMaster).validate(f[2])
+		  	errors = Schema_ANS.schemaSpecialiteEvenement(dfMaster,f[2],nameMaster).validate(f[2])
 		if schema_to_validate == "composition":
-			df = f[2]
-			df['Code substance cle'] = df['Code CIS'].astype(str)+df['numElement'].astype(str)+df['Code substance'].astype(str)
-			errors = Schema_ANS.schemaSpecialiteComposition(dfMaster,nameMaster).validate(df)
-
-		# A valider
-		
-		#if schema_to_validate == "presentation":
-			
-		#	if f[2]['Code CIP7'].dtype == 'float64':
-		#		f[2]['Code CIP7'] = f[2]['Code CIP7'].astype('Int32').astype(str)
-
-		#	errors = Schema_ANS.schemaPresentation(dfMaster,nameMaster,dfPresentationDispositif,namePresentationDispositif).validate(f[2])
-		
+		 	df = f[2]
+		 	df['Code substance cle'] = df['Code CIS'].astype(str)+df['numElement'].astype(str)+df['Code substance'].astype(str)
+		 	errors = Schema_ANS.schemaSpecialiteComposition(dfMaster,nameMaster).validate(df)
 		if schema_to_validate == "list_procedure":
-			errors = Schema_ANS.schemaListeProcedure(f[2]).validate(f[2])
-		#if schema_to_validate == "liste_événements_présentations":
-		#	errors = Schema_ANS.schemaListeEvenementPresentation().validate(f[2])
-		#if schema_to_validate == "liste_statuts":
-		#	print(f[2])
-		#	errors = Schema_ANS.schemaListeStatus(f[2]).validate(f[2])
-
+		 	errors = Schema_ANS.schemaListeProcedure(f[2]).validate(f[2])
+		if schema_to_validate == "liste_événements_présentations":
+		 	errors = Schema_ANS.schemaListeEvenementPresentation(f[2]).validate(f[2])
+		if schema_to_validate == "liste_statuts":
+		 	errors = Schema_ANS.schemaListeStatus(f[2]).validate(f[2])
+		if schema_to_validate == "presentation":			
+			if f[2]['Code CIP7'].dtype == 'float64':
+				f[2]['Code CIP7'] = f[2]['Code CIP7'].astype('Int32').astype(str)
+				
+			errors = Schema_ANS.schemaPresentation(dfMaster,nameMaster,dfPresentationDispositif,namePresentationDispositif).validate(f[2])
 		# 
 		if len(errors) > 0:
 			for error in errors:
@@ -156,15 +149,17 @@ if __name__ == '__main__':
 	if not  result.empty:
 
 		dirOutput = ''
-		try:
-			os.stat(output_result)			
-		except:
-			os.mkdir(output_result)
 		
+		if not os.path.exists(output_result):
+			os.makedirs(output_result)
+		#try:
+		#	os.stat(output_result)			
+		#except:
+		#	os.mkdir(output_result)
 		print("Ecriture des rapports de validation dans '"+ output_result +"'")
 
-		csv_file = 'rappot.csv'
-		html_file = 'rapport.html'
+		csv_file = os.path.join(output_result,'rappot.csv')
+		html_file = os.path.join(output_result,'rapport.html')
 
 		result.to_html(html_file,header=True,index=False, notebook=False, justify="center")
 		result.to_csv(csv_file,header=True,index=False)

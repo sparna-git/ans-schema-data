@@ -135,19 +135,16 @@ class longueurColonne(_SeriesValidation):
     def default_message(self):
         return 'la valuer est different à {} chiffre(s)'.format(self.nlongueur)
 
-    def validation_longeur_value(self, value):
-
-        if value.isnumeric():
-            try:
-                len( str( int( input_variable) ) ) == self.nlongueur
-                return True
-            except ValueError:
-                return False
-        else:
+    def returnValue(self, result):
+        if result == '-':            
             return True
-       
+        else:
+            return len(str(int(result))) == int(self.nlongueur)
+            
+
     def validate(self, series: pd.Series) -> pd.Series:
-        return series.astype(str).apply(self.validation_longeur_value)
+        s = series.replace('<NA>','-')
+        return s.astype(str).apply(self.returnValue)
 
 class validationCommentaire_ACP(_SeriesValidation):
 
@@ -173,7 +170,7 @@ class validationCommentaire_ACP(_SeriesValidation):
     def validate(self, series: pd.Series) -> pd.Series:
         return series.astype(str).apply(self.valida_result)
 
-class validateDateColumn(_SeriesValidation):
+class validateFmtDateColumn(_SeriesValidation):
 
     def __init__(self,dateformat: str,**kwargs):
         self.date_format = dateformat
@@ -184,7 +181,6 @@ class validateDateColumn(_SeriesValidation):
         return 'la colonne doit être une date de la forme dd/mm/yyyy .'.format(self.date_format)
 
     def valid_date_fmt(self, val):
-        
         try:
             datetime.datetime.strptime(val, self.date_format)            
             return True
@@ -199,23 +195,14 @@ class validateDateColumn(_SeriesValidation):
 
 class dateApresCreation(_SeriesValidation):
 
-    def __init__(self, dfSource, date_format: str,**kwargs):
+    def __init__(self, dfSource, **kwargs):
         
         self.dfSource = dfSource
-        self.date_format = date_format
         super().__init__(**kwargs)
 
     @property
     def default_message(self):
-        return 'La date doit être une date **après** la Date_Creation au la forme {} ne correspond pas'.format('jj/mm/yyyy')
-
-    def valid_date_fmt(self, val):
-        
-        try:
-            datetime.datetime.strptime(val,self.date_format)
-            return True
-        except:
-            return False
+        return 'La date doit être une date **après** la Date_Creation'
 
     def validate(self, series: pd.Series) -> pd.Series:
 
@@ -224,12 +211,4 @@ class dateApresCreation(_SeriesValidation):
         # Regle pour savoir si la date doit être une date **après** la Date_Creation_Proc
         self.outSerie = pd.Series(self.dfSource[self.dfSource.columns[1]].where(self.dfSource[self.dfSource.columns[1]].notnull())[self.dfSource[self.dfSource.columns[0]] > self.dfSource[self.dfSource.columns[1]]])
         
-        # Pour valider le format de la date
-        dfValidatefmt = self.dfSource[self.dfSource[self.dfSource.columns[1]].notnull()]
-        dfValuefmt = dfValidatefmt[~dfValidatefmt[dfValidatefmt.columns[1]].astype(str).apply(self.valid_date_fmt)]
-        #self.outfmtSerie = pd.Series(dfValidatefmt[dfValidatefmt.columns[1]].astype(str).apply(self.valid_date_fmt))
-        self.outfmtSerie = pd.Series(dfValuefmt[dfValuefmt.columns[1]])
-        
-        print(series.isin(self.outSerie))
-
-        return (~series.isin(self.outSerie)) #(~series.isin(self.outSerie)) #| (~series.isin(self.outfmtSerie)) #(~self.outSerie.isin(self.series)) #| (self.outfmtSerie.isin(self.series))
+        return ~series.isin(self.outSerie)

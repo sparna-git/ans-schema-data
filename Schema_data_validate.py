@@ -105,7 +105,6 @@ def outFmtHTML(dfOutput, pahtOutput):
 							</div>
 						</div>
 					</div>"""
-
 		outAccordion = outAccordion + acoordion
 		#outTable = outTable+fmtTable
 
@@ -114,8 +113,6 @@ def outFmtHTML(dfOutput, pahtOutput):
 
 	styleAccordion = """<div class="accordion accordion-flush" id="accordionFlushExample">"""+outAccordion +"""</div>"""
 	
-
-	# OUTPUT AN HTML FILE classes='mystyle'
 	with open(pahtOutput, 'w') as f:
 		f.write(html_string.format(input=styleAccordion))
 	return True
@@ -133,6 +130,8 @@ def createResult(files: list):
 	namePresentationDispositif = "" 
 	dfConditionnement = pd.DataFrame()
 	nameConditionnement = ""
+	dfListeEPresentation = pd.DataFrame()
+	nameListeEPresentation = ""
 	for m in files:
 		if m[1] == "specialite":
 			nameMaster = m[0]
@@ -146,6 +145,9 @@ def createResult(files: list):
 		if m[1] == "conditionnement":
 			nameConditionnement = m[0]
 			dfConditionnement = m[2]
+		if m[1] == "liste_événements_présentations":
+			nameListeEPresentation = m[0]
+			dfListeEPresentation = m[2]
 
 
 	logErros = list()
@@ -162,7 +164,7 @@ def createResult(files: list):
 		if schema_to_validate == "conditionnement":
 		   	errors = Schema_ANS.schemaConditionnement(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
 		if schema_to_validate == "evenement":
-		   	errors = Schema_ANS.schemaEvenement(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
+		   	errors = Schema_ANS.schemaEvenement(dfMaster,dfPresentation,nameMaster,namePresentation,dfListeEPresentation,nameListeEPresentation).validate(f[2])
 		if schema_to_validate == "specialiteEvenement":
 		  	errors = Schema_ANS.schemaSpecialiteEvenement(dfMaster,f[2],nameMaster).validate(f[2])
 		if schema_to_validate == "composition":

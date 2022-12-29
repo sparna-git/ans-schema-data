@@ -121,12 +121,14 @@ def schemaSpecialiteEvenement(FileMaster,dfSource,MasterFileName):
 
 	return schema_SpecialiteEvenement
 
-def schemaEvenement(FileMaster,FilePresentation,MasterFileName, PresentationFileName):
+def schemaEvenement(FileMaster,FilePresentation,MasterFileName, PresentationFileName, dfListePresentation, namelistePresentation):
 
 	schema_Evenement = Schema([
 		Column('Code CIS', [MasterDetail(FileMaster,'Code CIS', MasterFileName), ColonneObligatoire()]),
 		Column('Code CIP13', [MasterDetail(FilePresentation,'Code CIP13', PresentationFileName), ColonneObligatoire()]),
-		Column('codeEvntPres',[ColonneObligatoire()]),
+		Column('codeEvntPres',[ColonneObligatoire(),
+							   MasterDetail(dfListePresentation,'Id_ANSM_Evenement_Pre', namelistePresentation)
+								]),
 		Column('DateEvnt_Presentation',[validateFmtDateColumn('%d/%m/%Y'),
 										ColonneObligatoire()
 										]),

@@ -4,7 +4,7 @@ import os
 import errno
 from pandas_schema import Schema
 import Schema_ANS
-import shutil
+
 
 def listDataFrame(pathInputs):
 	"""
@@ -49,6 +49,77 @@ def listDataFrame(pathInputs):
 			dfList.append([filename,type_file,dfInput])
 
 	return dfList
+
+
+def outFmtHTML(dfOutput, pahtOutput):
+
+	section = dfOutput[dfOutput.columns[0]].drop_duplicates()
+	outputTable = list()
+	for s in section:
+		name = dfOutput[dfOutput[dfOutput.columns[0]].isin([s])][dfOutput.columns[0]].drop_duplicates()
+		df = dfOutput[dfOutput[dfOutput.columns[0]].isin([s])]
+		dfResult = df.drop(df.columns[0], axis=1)
+
+		outputTable.append([name.values,dfResult])
+	
+	html_string = '''
+		<html>
+			<head><title>ANSM - Specification règles de validation</title></head>
+		  	<link rel="stylesheet" type="text/css" href="dfStyle.css"/>
+		  	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+			<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+			
+		  	<body>
+		  		<div class="container">
+		  			<div style="margin: 30px">
+			  			<h1 class="modal-title text-center">ANSM - Specification règles de validation</title>
+			  		</div>
+			  		<div>
+		  				{input}
+		  			</div>
+		  		<div>
+		  	</body>
+		</html>
+		'''
+	#fmtTable = '<div>'
+	#outTable=''
+	outAccordion=''
+	for sourcedf in outputTable:
+		# fmtTable = '<div>'
+		# fmtTable = fmtTable+'<h2>'+fmtTable+str(sourcedf[0][0])+'</h2>'
+		# fmtTable = fmtTable + sourcedf[1].to_html(index=False, classes='table table-striped')
+		# fmtTable = fmtTable+'</div>'
+
+		idf = str(sourcedf[1].index.values[0])
+		nErrors = len(sourcedf[1])
+		acoordion = """<div class="accordion-item" style="margin: 30px">
+			    		<h2 class="accordion-header" id="flush-heading"""+idf+""" ">
+							<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse"""+idf+"""" aria-expanded="false" aria-controls="flush-collapse"""+idf+"""">
+							"""+str(sourcedf[0][0])+"""
+							<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">"""+str(nErrors)+"""
+							</span>
+							</button>
+						</h2> 
+						<div id="flush-collapse"""+idf+"""" class="accordion-collapse collapse" aria-labelledby="flush-heading"""+idf+"""" data-bs-parent="#accordionFlushExample">
+							<div class="accordion-body">"""+sourcedf[1].to_html(index=False, classes='table table-striped')+"""
+							</div>
+						</div>
+					</div>"""
+
+		outAccordion = outAccordion + acoordion
+		#outTable = outTable+fmtTable
+
+		#fmtTable = ''
+		acoordion = ''
+
+	styleAccordion = """<div class="accordion accordion-flush" id="accordionFlushExample">"""+outAccordion +"""</div>"""
+	
+
+	# OUTPUT AN HTML FILE classes='mystyle'
+	with open(pahtOutput, 'w') as f:
+		f.write(html_string.format(input=styleAccordion))
+	return True
+
 
 def createResult(files: list):
 	dfResult = pd.DataFrame()
@@ -112,7 +183,7 @@ def createResult(files: list):
 		# 
 		if len(errors) > 0:
 			for error in errors:
-				logErros.append([schema_to_validate,str(error.row),error.column,str(error.value),error.message])
+				logErros.append([f[0],str(error.row),error.column,str(error.value),error.message])
 
 		errors.clear()
 
@@ -152,14 +223,13 @@ if __name__ == '__main__':
 		
 		if not os.path.exists(output_result):
 			os.makedirs(output_result)
-		#try:
-		#	os.stat(output_result)			
-		#except:
-		#	os.mkdir(output_result)
+		
 		print("Ecriture des rapports de validation dans '"+ output_result +"'")
 
 		csv_file = os.path.join(output_result,'rappot.csv')
 		html_file = os.path.join(output_result,'rapport.html')
 
-		result.to_html(html_file,header=True,index=False, notebook=False, justify="center")
+		df_HTML = result
+		outFmtHTML(df_HTML,html_file)	
+		
 		result.to_csv(csv_file,header=True,index=False)

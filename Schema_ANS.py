@@ -3,8 +3,6 @@ from io import StringIO
 from pandas_schema import Column, Schema
 from pandas_schema.validation import MatchesPatternValidation, InRangeValidation, InListValidation, CustomSeriesValidation, IsDistinctValidation
 
-import datetime
-from datetime import datetime
 from validation_ans_schema import MasterDetail, ValidationLongColumn, ValidationColumnStatus, validateDateAutoColumn, validateEvntMarColumn, ColonneObligatoire, validationCommentaire_ACP, longueurColonne, validateFmtDateColumn, dateApresCreation
 
 """

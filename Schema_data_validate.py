@@ -1,10 +1,8 @@
 import pandas as pd
 import sys
 import os
-import errno
-from pandas_schema import Schema
 import Schema_ANS
-
+from pathlib import Path
 
 def listDataFrame(pathInputs):
 	"""
@@ -50,7 +48,6 @@ def listDataFrame(pathInputs):
 
 	return dfList
 
-
 def outFmtHTML(dfOutput, pahtOutput):
 
 	section = dfOutput[dfOutput.columns[0]].drop_duplicates()
@@ -59,7 +56,6 @@ def outFmtHTML(dfOutput, pahtOutput):
 		name = dfOutput[dfOutput[dfOutput.columns[0]].isin([s])][dfOutput.columns[0]].drop_duplicates()
 		df = dfOutput[dfOutput[dfOutput.columns[0]].isin([s])]
 		dfResult = df.drop(df.columns[0], axis=1)
-
 		outputTable.append([name.values,dfResult])
 	
 	html_string = '''
@@ -81,6 +77,7 @@ def outFmtHTML(dfOutput, pahtOutput):
 		  	</body>
 		</html>
 		'''
+	
 	#fmtTable = '<div>'
 	#outTable=''
 	outAccordion=''
@@ -90,8 +87,11 @@ def outFmtHTML(dfOutput, pahtOutput):
 		# fmtTable = fmtTable + sourcedf[1].to_html(index=False, classes='table table-striped')
 		# fmtTable = fmtTable+'</div>'
 
+		# Control de chaque section seulement pour l'utiliser dans HTML 
 		idf = str(sourcedf[1].index.values[0])
+		#Nombre des erreurs par chaque fichier 
 		nErrors = len(sourcedf[1])
+		# Créer de la balise par chaque fichier qui a des erreurs
 		acoordion = """<div class="accordion-item" style="margin: 30px">
 			    		<h2 class="accordion-header" id="flush-heading"""+idf+""" ">
 							<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse"""+idf+"""" aria-expanded="false" aria-controls="flush-collapse"""+idf+"""">
@@ -101,7 +101,7 @@ def outFmtHTML(dfOutput, pahtOutput):
 							</button>
 						</h2> 
 						<div id="flush-collapse"""+idf+"""" class="accordion-collapse collapse" aria-labelledby="flush-heading"""+idf+"""" data-bs-parent="#accordionFlushExample">
-							<div class="accordion-body">"""+sourcedf[1].to_html(index=False, classes='table table-striped')+"""
+							<div class="accordion-body">"""+sourcedf[1].to_html(index=False,justify='center' ,classes='table table-striped')+"""
 							</div>
 						</div>
 					</div>"""
@@ -122,8 +122,8 @@ def createResult(files: list):
 	dfResult = pd.DataFrame()
 
 	# On va chercher les fichies principal pour valider
-	dfMaster = pd.DataFrame()
-	nameMaster = ""
+	dfSpecialite = pd.DataFrame()
+	nameSpecialite = ""
 	dfPresentation = pd.DataFrame()
 	namePresentation = ""
 	dfPresentationDispositif = pd.DataFrame()
@@ -134,8 +134,8 @@ def createResult(files: list):
 	nameListeEPresentation = ""
 	for m in files:
 		if m[1] == "specialite":
-			nameMaster = m[0]
-			dfMaster = m[2]
+			nameSpecialite = m[0]
+			dfSpecialite = m[2]
 		if m[1] == "presentation":
 			namePresentation = m[0]
 			dfPresentation = m[2]
@@ -160,17 +160,17 @@ def createResult(files: list):
 		if schema_to_validate == "specialite":
 		 	errors = Schema_ANS.schemaSpecialite(f[2], dfPresentation, dfConditionnement, namePresentation,nameConditionnement).validate(f[2])
 		if schema_to_validate == "dispositif":
-		   	errors = Schema_ANS.schemaDispositif(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
+		   	errors = Schema_ANS.schemaDispositif(dfSpecialite,dfPresentation,nameSpecialite,namePresentation).validate(f[2])
 		if schema_to_validate == "conditionnement":
-		   	errors = Schema_ANS.schemaConditionnement(dfMaster,dfPresentation,nameMaster,namePresentation).validate(f[2])
+		   	errors = Schema_ANS.schemaConditionnement(dfSpecialite,dfPresentation,nameSpecialite,namePresentation).validate(f[2])
 		if schema_to_validate == "evenement":
-		   	errors = Schema_ANS.schemaEvenement(dfMaster,dfPresentation,nameMaster,namePresentation,dfListeEPresentation,nameListeEPresentation).validate(f[2])
+		   	errors = Schema_ANS.schemaEvenement(dfSpecialite,dfPresentation,nameSpecialite,namePresentation,dfListeEPresentation,nameListeEPresentation).validate(f[2])
 		if schema_to_validate == "specialiteEvenement":
-		  	errors = Schema_ANS.schemaSpecialiteEvenement(dfMaster,f[2],nameMaster).validate(f[2])
+		  	errors = Schema_ANS.schemaSpecialiteEvenement(dfSpecialite,f[2],nameSpecialite).validate(f[2])
 		if schema_to_validate == "composition":
 		 	df = f[2]
 		 	df['Code substance cle'] = df['Code CIS'].astype(str)+df['numElement'].astype(str)+df['Code substance'].astype(str)
-		 	errors = Schema_ANS.schemaSpecialiteComposition(dfMaster,nameMaster).validate(df)
+		 	errors = Schema_ANS.schemaSpecialiteComposition(dfSpecialite,nameSpecialite).validate(df)
 		if schema_to_validate == "list_procedure":
 		 	errors = Schema_ANS.schemaListeProcedure(f[2]).validate(f[2])
 		if schema_to_validate == "liste_événements_présentations":
@@ -181,7 +181,7 @@ def createResult(files: list):
 			if f[2]['Code CIP7'].dtype == 'float64':
 				f[2]['Code CIP7'] = f[2]['Code CIP7'].astype('Int32').astype(str)
 				
-			errors = Schema_ANS.schemaPresentation(dfMaster,nameMaster,dfPresentationDispositif,namePresentationDispositif).validate(f[2])
+			errors = Schema_ANS.schemaPresentation(dfSpecialite,nameSpecialite,dfPresentationDispositif,namePresentationDispositif).validate(f[2])
 		# 
 		if len(errors) > 0:
 			for error in errors:
@@ -221,17 +221,16 @@ if __name__ == '__main__':
 	"""
 	if not  result.empty:
 
-		dirOutput = ''
-		
 		if not os.path.exists(output_result):
-			os.makedirs(output_result)
+			path = Path(output_result)
+			path.mkdir(parents=True)			
 		
-		print("Ecriture des rapports de validation dans '"+ output_result +"'")
-
 		csv_file = os.path.join(output_result,'rappot.csv')
 		html_file = os.path.join(output_result,'rapport.html')
 
-		df_HTML = result
-		outFmtHTML(df_HTML,html_file)	
-		
+		# Creeer fichier html
+		outFmtHTML(result,html_file)
+		# Creeer fichier csv
 		result.to_csv(csv_file,header=True,index=False)
+
+		print("Ecriture des rapports de validation dans '"+ output_result +"'")

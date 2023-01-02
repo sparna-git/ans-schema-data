@@ -71,6 +71,8 @@ mkdir input
 # cp .... input
 ```
 
+Le script repère les fichiers par rapport au préfixe du nom de fichier (par exemple `if filename.startswith('1_ANS_Spécialité_pharmaceutique_'):`).
+
 3. Lancer le script
 
 ```
@@ -84,4 +86,4 @@ Windows : python Schema_data_validate.py input output
 Linux : python3.10 Schema_data_validate.py input output
 ```
 
-Le répertoire d'output contiendra 2 fichiers : le rapport de validation en CSV, et le rapport de validation en HTML.
+Le répertoire d'output contiendra 2 fichiers : le rapport de validation en CSV `rapport.csv`, et le rapport de validation en HTML `rapport.html`.

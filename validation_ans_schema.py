@@ -14,7 +14,7 @@ class ColonneObligatoire(_SeriesValidation):
 
     @property
     def default_message(self):
-        return 'La colonne doit être obligatoire'
+        return 'La colonne est obligatoire'
 
     def validate(self, series: pd.Series) -> pd.Series:
         self.series = series
@@ -31,7 +31,7 @@ class ValidationLongColumn(_SeriesValidation):
 
     @property
     def default_message(self):
-        return 'Un seul chiffre entre 0 et 9'
+        return 'La valeur doit être un chiffre entre 0 et 9'
 
     def validate(self, series: pd.Series) -> pd.Series:
         self.series = series
@@ -50,7 +50,7 @@ class MasterDetail(_SeriesValidation):
 
     @property
     def default_message(self):
-        return 'Id does not match in the "{}" file '.format(self.MasterFilename)
+        return 'La valeur n''a pas été trouvée dans le fichier "{}" '.format(self.MasterFilename)
 
 
     def validate(self, series: pd.Series) -> pd.Series:
@@ -74,7 +74,7 @@ class ValidationColumnStatus(_SeriesValidation):
 
     @property
     def default_message(self):
-        return 'la colonne "Statut AMM" est different à "Archivé" or "Suspension"'
+        return 'la valeur est differente de "Archivé" ou "Suspension"'
 
     def validate(self, series: pd.Series) -> pd.Series:
         self.series = series
@@ -92,7 +92,7 @@ class validateDateAutoColumn(_SeriesValidation):
 
     @property
     def default_message(self):
-        return 'la colonne "Statut AMM" est vide '
+        return 'La colonne est obligatoire'
 
 
     def validate(self, series: pd.Series) -> pd.Series:
@@ -114,7 +114,7 @@ class validateEvntMarColumn(_SeriesValidation):
 
     @property
     def default_message(self):
-        return 'La colonne ne respecte pas la règle établie entre la colonne "remTerme Evnt" et "EvntMar", la valeur doit être obligatoirement "changement de procédure" '
+        return 'La colonne "remTerme Evnt" est égale à "Changement de procédure", cette colonne "EvntMar" doit avoir la valeur "changement de procédure"'
 
 
     def validate(self, series: pd.Series) -> pd.Series:
@@ -133,7 +133,7 @@ class longueurColonne(_SeriesValidation):
 
     @property
     def default_message(self):
-        return 'la valuer est different à {} chiffre(s)'.format(self.nlongueur)
+        return 'la valeur doit avoir {} chiffre(s)'.format(self.nlongueur)
 
     def returnValue(self, result):
         if result == '-':            
@@ -154,7 +154,7 @@ class validationCommentaire_ACP(_SeriesValidation):
 
     @property
     def default_message(self):
-        return ' la valeur doit être une valeur dans {} '.format(self.condition)
+        return 'La valeur doit être dans la liste {} '.format(self.condition)
 
     def valida_result(self, value):
 
@@ -178,7 +178,7 @@ class validateFmtDateColumn(_SeriesValidation):
 
     @property
     def default_message(self):
-        return 'la colonne doit être une date de la forme dd/mm/yyyy .'.format(self.date_format)
+        return 'La valeur doit être une date de la forme dd/mm/yyyy'.format(self.date_format)
 
     def valid_date_fmt(self, val):
         try:
@@ -202,7 +202,7 @@ class dateApresCreation(_SeriesValidation):
 
     @property
     def default_message(self):
-        return 'La date doit être une date **après** la Date_Creation'
+        return 'La date doit être **postérieure** à la date de création'
 
     def validate(self, series: pd.Series) -> pd.Series:
 

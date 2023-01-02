@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import datetime
 import re
+import typing
 from pandas_schema import column
 from pandas_schema.validation import _SeriesValidation, CustomSeriesValidation
 from pandas_schema import ValidationWarning
@@ -36,7 +37,7 @@ class ValidationLongColumn(_SeriesValidation):
     def validate(self, series: pd.Series) -> pd.Series:
         self.series = series
 
-        return self.series.between(1,9,inclusive=True)
+        return self.series.between(1,9,inclusive='both')
 
 class MasterDetail(_SeriesValidation):
 
@@ -50,7 +51,7 @@ class MasterDetail(_SeriesValidation):
 
     @property
     def default_message(self):
-        return 'La valeur n''a pas été trouvée dans le fichier "{}" '.format(self.MasterFilename)
+        return 'La valeur n\'a pas été trouvée dans le fichier "{}" '.format(self.MasterFilename)
 
 
     def validate(self, series: pd.Series) -> pd.Series:
@@ -212,3 +213,64 @@ class dateApresCreation(_SeriesValidation):
         self.outSerie = pd.Series(self.dfSource[self.dfSource.columns[1]].where(self.dfSource[self.dfSource.columns[1]].notnull())[self.dfSource[self.dfSource.columns[0]] > self.dfSource[self.dfSource.columns[1]]])
         
         return ~series.isin(self.outSerie)
+
+class MatchesPatternValidation_fr(_SeriesValidation):
+    """
+    Validates that a string or regular expression can match somewhere in each element in this column
+    """
+
+    def __init__(self, pattern, options={}, **kwargs):
+        """
+        :param kwargs: Arguments to pass to Series.str.contains
+            (http://pandas.pydata.org/pandas-docs/stable/generated/pandas.Series.str.contains.html)
+            pat is the only required argument
+        """
+        self.pattern = pattern
+        self.options = options
+        super().__init__(**kwargs)
+
+    @property
+    def default_message(self):
+        return 'La valeur ne correspond pas au modèle "{}"'.format(self.pattern)
+
+    def validate(self, series: pd.Series) -> pd.Series:
+        return series.astype(str).str.contains(self.pattern, **self.options)
+
+class DistinctValidation_fr(_SeriesValidation):
+    """
+    Checks that every element of this column is different from each other element
+    """
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    @property
+    def default_message(self):
+        return 'La valeur n\'est pas unique'
+
+    def validate(self, series: pd.Series) -> pd.Series:
+        return ~series.duplicated(keep='first') 
+
+class InListValidation_fr(_SeriesValidation):
+    """
+    Checks that each element in this column is contained within a list of possibilities
+    """
+
+    def __init__(self, options: typing.Iterable, case_sensitive: bool = True, **kwargs):
+        """
+        :param options: A list of values to check. If the value of a cell is in this list, it is considered to pass the
+            validation
+        """
+        self.case_sensitive = case_sensitive
+        self.options = options
+        super().__init__(**kwargs)
+
+    @property
+    def default_message(self):
+        values = ', '.join(str(v) for v in self.options)
+        return 'La valeur ne se trouvée pas dans la list ({})'.format(values)
+
+    def validate(self, series: pd.Series) -> pd.Series:
+        if self.case_sensitive:
+            return series.isin(self.options)
+        else:
+            return series.str.lower().isin([s.lower() for s in self.options])

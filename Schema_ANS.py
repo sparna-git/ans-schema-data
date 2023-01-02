@@ -1,9 +1,9 @@
 import chardet
 from io import StringIO
 from pandas_schema import Column, Schema
-from pandas_schema.validation import MatchesPatternValidation, InRangeValidation, InListValidation, CustomSeriesValidation, IsDistinctValidation
+#from pandas_schema.validation import InListValidation
 
-from validation_ans_schema import MasterDetail, ValidationLongColumn, ValidationColumnStatus, validateDateAutoColumn, validateEvntMarColumn, ColonneObligatoire, validationCommentaire_ACP, longueurColonne, validateFmtDateColumn, dateApresCreation
+from validation_ans_schema import MasterDetail, ValidationLongColumn, ValidationColumnStatus, validateDateAutoColumn, validateEvntMarColumn, ColonneObligatoire, validationCommentaire_ACP, longueurColonne, validateFmtDateColumn, dateApresCreation, DistinctValidation_fr, MatchesPatternValidation_fr, InListValidation_fr
 
 """
 	Tutoriale:
@@ -12,7 +12,7 @@ from validation_ans_schema import MasterDetail, ValidationLongColumn, Validation
 
 	Function   												Description
 	MatchesPatternValidation(r' Nombre de caracteres')   	function pour valider le numero de chiffres
-	IsDistinctValidation()     								Validation de la colonne que les données doit être unique 
+	PaTternvalIdation_fr()     								Validation de la colonne que les données doit être unique 
 	InListValidation(['Actif', 'Archivé', 'Suspension'])    Valider que les données de la colonne se trouve dans la liste parametrée
 	
 
@@ -25,15 +25,15 @@ from validation_ans_schema import MasterDetail, ValidationLongColumn, Validation
 
 def schemaSpecialite(dfSource, dfPresentation, dfConditionnement, namePresentation, nameConditionnement):
 	schema_Specialite = Schema([
-			Column('Code CIS', [MatchesPatternValidation(r'\d{8}'), # Doit être une chaine de caractères à 8 chiffres et obligatoire
-								IsDistinctValidation(), #Le code doit être unique								
+			Column('Code CIS', [MatchesPatternValidation_fr(r'\d{8}'), # Doit être une chaine de caractères à 8 chiffres et obligatoire
+								DistinctValidation_fr(), #Le code doit être unique								
 								ColonneObligatoire(),
 								MasterDetail(dfPresentation, 'Code CIS', namePresentation), #Presentation
 								MasterDetail(dfConditionnement, 'Code CIS', nameConditionnement) #Conditionnement
 								]),
 			Column('Nom Spécialité',[ColonneObligatoire()]),
 			
-			Column('Statut AMM', [InListValidation(['Actif', 'Archivé', 'Suspension']),
+			Column('Statut AMM', [InListValidation_fr(['Actif', 'Archivé', 'Suspension']),
 							  ColonneObligatoire()
 							  ]), 
 
@@ -48,7 +48,7 @@ def schemaSpecialite(dfSource, dfPresentation, dfConditionnement, namePresentati
 										ValidationColumnStatus(dfSource)
 										],allow_empty=True),
 
-			Column('Procédure', [InListValidation(["Autorisation d'importation parallèle", 'Procédure centralisée','Procédure décentralisée', 'Procédure de reconnaissance mutuelle', 'Procédure nationale']),
+			Column('Procédure', [InListValidation_fr(["Autorisation d'importation parallèle", 'Procédure centralisée','Procédure décentralisée', 'Procédure de reconnaissance mutuelle', 'Procédure nationale']),
 							ColonneObligatoire()
 							]),
 
@@ -67,7 +67,7 @@ def schemaPresentation(FileMaster,MasterFileName,dfPDispositif, namePDispositif)
 			Column('Code CIS', [MasterDetail(FileMaster, 'Code CIS', MasterFileName),
 								ColonneObligatoire()
 							 	]),
-			Column('Code CIP13', [MatchesPatternValidation(r'\d{13}'), 
+			Column('Code CIP13', [MatchesPatternValidation_fr(r'\d{13}'), 
 								  ColonneObligatoire(),
 								  MasterDetail(dfPDispositif, 'Code CIP13', namePDispositif)
 								  ]),
@@ -108,10 +108,10 @@ def schemaSpecialiteEvenement(FileMaster,dfSource,MasterFileName):
 		Column('DateEvnt_Spec',[validateFmtDateColumn('%d/%m/%Y'),
 							ColonneObligatoire()
 										]),
-		Column('remTerme Evnt', [InListValidation(['Changement de procédure', 'Changement de statut']),
+		Column('remTerme Evnt', [InListValidation_fr(['Changement de procédure', 'Changement de statut']),
 							  ColonneObligatoire()
 							  ]),
-		Column('EvntMar',[InListValidation(['actif', 'archivé', 'archivé (administratif)', 'changement de procédure', 'retire', 'suspension']),
+		Column('EvntMar',[InListValidation_fr(['actif', 'archivé', 'archivé (administratif)', 'changement de procédure', 'retire', 'suspension']),
 						  ColonneObligatoire(),
 						  validateEvntMarColumn(dfSource,['changement de procédure'],['Changement de procédure'])
 						  ])
@@ -148,16 +148,16 @@ def schemaSpecialiteComposition(FileMaster,MasterFileName):
 		Column('Nom Element', [ColonneObligatoire()]),
 		Column('Référence dosage', [ColonneObligatoire()]),
 		Column('Code substance', [ColonneObligatoire()]),
-		Column('Nom Nature', [InListValidation(['Substances actives.', 'Fractions thérapeutiques.']),
+		Column('Nom Nature', [InListValidation_fr(['Substances actives.', 'Fractions thérapeutiques.']),
 							  ColonneObligatoire()
 							  ]),
 		Column('Sub Dosage'),
 		Column('numOrdreEdit',[ColonneObligatoire(),
-							   MatchesPatternValidation(r'^[0-9]*$')	
+							   MatchesPatternValidation_fr(r'^[0-9]*$')	
 							]),
 		Column('Dosage'),
 		Column('Nom du composant'),
-		Column('Code substance cle',[IsDistinctValidation()])
+		Column('CIS-Element-Substance',[DistinctValidation_fr()])
 		])
 
 	return schema_composition
@@ -166,7 +166,7 @@ def schemaListeEvenementPresentation(dfSource):
 
 	schema_liste_evenement_presentation = Schema([
 		Column('Id_ANSM_Evenement_Pre',[ColonneObligatoire(),
-							MatchesPatternValidation(r'^[0-9]*$')
+							MatchesPatternValidation_fr(r'^[0-9]*$')
 						]),
 		Column('Lib_Evenement_Pre'),		
 		Column('Type_Evenement_Pre'),
@@ -184,7 +184,7 @@ def schemaListeProcedure(dfSource):
 
 	schema_liste_procedure = Schema([
 		Column('Id_ANSM_proc',[ColonneObligatoire(),
-						MatchesPatternValidation(r'^[0-9]*$')
+						MatchesPatternValidation_fr(r'^[0-9]*$')
 						]),
 		Column('Lib_Proc',[ColonneObligatoire()]),
 		Column('Desc_proc'),
@@ -201,7 +201,7 @@ def schemaListeStatus(dfSource):
 
 	schema_liste_status = Schema([
 		Column('Id_ANSM_Statut',[ColonneObligatoire(),
-						MatchesPatternValidation(r'^[0-9]*$')
+						MatchesPatternValidation_fr(r'^[0-9]*$')
 						]),
 		Column('Lib_Statut',[ColonneObligatoire()]),
 		Column('Desc_statut'),

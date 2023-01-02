@@ -2,6 +2,7 @@ import pandas as pd
 import sys
 import os
 import Schema_ANS
+import numpy as np
 from pathlib import Path
 
 def listDataFrame(pathInputs):
@@ -51,6 +52,7 @@ def listDataFrame(pathInputs):
 def outFmtHTML(dfOutput, pahtOutput):
 
 	section = dfOutput[dfOutput.columns[0]].drop_duplicates()
+	
 	outputTable = list()
 	for s in section:
 		name = dfOutput[dfOutput[dfOutput.columns[0]].isin([s])][dfOutput.columns[0]].drop_duplicates()
@@ -78,15 +80,9 @@ def outFmtHTML(dfOutput, pahtOutput):
 		</html>
 		'''
 	
-	#fmtTable = '<div>'
-	#outTable=''
 	outAccordion=''
 	for sourcedf in outputTable:
-		# fmtTable = '<div>'
-		# fmtTable = fmtTable+'<h2>'+fmtTable+str(sourcedf[0][0])+'</h2>'
-		# fmtTable = fmtTable + sourcedf[1].to_html(index=False, classes='table table-striped')
-		# fmtTable = fmtTable+'</div>'
-
+		
 		# Control de chaque section seulement pour l'utiliser dans HTML 
 		idf = str(sourcedf[1].index.values[0])
 		#Nombre des erreurs par chaque fichier 
@@ -106,9 +102,6 @@ def outFmtHTML(dfOutput, pahtOutput):
 						</div>
 					</div>"""
 		outAccordion = outAccordion + acoordion
-		#outTable = outTable+fmtTable
-
-		#fmtTable = ''
 		acoordion = ''
 
 	styleAccordion = """<div class="accordion accordion-flush" id="accordionFlushExample">"""+outAccordion +"""</div>"""
@@ -116,7 +109,6 @@ def outFmtHTML(dfOutput, pahtOutput):
 	with open(pahtOutput, 'w') as f:
 		f.write(html_string.format(input=styleAccordion))
 	return True
-
 
 def createResult(files: list):
 	dfResult = pd.DataFrame()
@@ -169,8 +161,8 @@ def createResult(files: list):
 		  	errors = Schema_ANS.schemaSpecialiteEvenement(dfSpecialite,f[2],nameSpecialite).validate(f[2])
 		if schema_to_validate == "composition":
 		 	df = f[2]
-		 	df['Code substance cle'] = df['Code CIS'].astype(str)+df['numElement'].astype(str)+df['Code substance'].astype(str)
-		 	errors = Schema_ANS.schemaSpecialiteComposition(dfSpecialite,nameSpecialite).validate(df)
+		 	df['CIS-Element-Substance'] = df['Code CIS'].astype(str)+'-'+df['numElement'].astype(str)+'-'+df['Code substance'].astype(str)
+		 	errors = Schema_ANS.schemaSpecialiteComposition(dfSpecialite,nameSpecialite).validate(df)		 	
 		if schema_to_validate == "list_procedure":
 		 	errors = Schema_ANS.schemaListeProcedure(f[2]).validate(f[2])
 		if schema_to_validate == "liste_événements_présentations":
@@ -185,7 +177,7 @@ def createResult(files: list):
 		# 
 		if len(errors) > 0:
 			for error in errors:
-				logErros.append([f[0],str(error.row),error.column,str(error.value),error.message])
+				logErros.append([f[0],str(error.row),error.column,str(error.value).replace('nan',''),error.message])
 
 		errors.clear()
 

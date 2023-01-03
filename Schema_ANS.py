@@ -5,24 +5,6 @@ from pandas_schema import Column, Schema
 
 from validation_ans_schema import MasterDetail, ValidationLongColumn, ValidationColumnStatus, validateDateAutoColumn, validateEvntMarColumn, ColonneObligatoire, validationCommentaire_ACP, longueurColonne, validateFmtDateColumn, dateApresCreation, DistinctValidation_fr, MatchesPatternValidation_fr, InListValidation_fr
 
-"""
-	Tutoriale:
-
-	function pour valider les colonnes:
-
-	Function   												Description
-	MatchesPatternValidation(r' Nombre de caracteres')   	function pour valider le numero de chiffres
-	PaTternvalIdation_fr()     								Validation de la colonne que les données doit être unique 
-	InListValidation(['Actif', 'Archivé', 'Suspension'])    Valider que les données de la colonne se trouve dans la liste parametrée
-	
-
-
-	MasterDetail(FileMaster, 'Code CIS', MasterFileName)
-	(CustomSeriesValidation(lambda x: x.str.len() > 0, 'La coLonne doit être obligatoire')) fonction pour valider que la colonne doit être présent obligatoirement 
-
-"""
-
-
 def schemaSpecialite(dfSource, dfPresentation, dfConditionnement, namePresentation, nameConditionnement):
 	schema_Specialite = Schema([
 			Column('Code CIS', [MatchesPatternValidation_fr(r'\d{8}'), # Doit être une chaine de caractères à 8 chiffres et obligatoire

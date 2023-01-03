@@ -23,6 +23,7 @@ def listDataFrame(pathInputs):
 			type_file=""
 			filename = ""
 			index = 0
+			Ordre = -1
 
 			dfInput = pd.read_csv(fileInput, delimiter=';',index_col=False,encoding="cp1252")
 			dfInput.index = dfInput.index + 2
@@ -32,38 +33,48 @@ def listDataFrame(pathInputs):
 			if filename.startswith('1_ANS_Spécialité_pharmaceutique_'):
 				type_file="specialite"
 				index = 1
+				Ordre = 1
 			elif filename.startswith('2_ANS_Présentation_'):
 				type_file="presentation"
 				index = 1
+				Ordre = 4
 			elif filename.startswith('2_2_ANS_Présentation_dispositif_'):
 				type_file="dispositif"
 				index = 1
+				Ordre = 6
 			elif filename.startswith('2_1_ANS_Présentation_conditionnement_'):
 				type_file="conditionnement"
 				index = 1
+				Ordre = 5
 			elif filename.startswith('2_3_ANS_Présentation_événement_'):
 				type_file="evenement"
 				index = 1
+				Ordre = 7
 			elif filename.startswith('1_2_ANS_Spécialité_pharmaceutique_événement_'):
 				type_file="specialiteEvenement"
 				index = 1
+				Ordre = 2
 			elif filename.startswith('1_3_ANS_Spécialité_pharmaceutique_composition_'):
 				type_file="composition"
 				index = 1
+				Ordre = 3
 			elif filename.startswith('ANS_Liste_ procédures_'):
 				type_file="list_procedure"
 				index = 1
+				Ordre = 9
 			elif filename.startswith('ANS_Liste_événements_présentations_'):
 				type_file="liste_événements_présentations"
 				index = 1
+				Ordre = 8
 			elif filename.startswith('ANS_Liste_statuts_'):
 				type_file="liste_statuts"
 				index = 1
+				Ordre = 10
 			else:
 				type_file="Erreur - Le fichier "+ filename +" ne se trouve pas dans la liste de Schema....."
-				index = 0
+				index = 0				
 
-			dfList.append([filename,type_file,dfInput,index])
+			dfList.append([filename,type_file,dfInput,index,Ordre])
 
 	return dfList
 
@@ -74,14 +85,16 @@ def outFmtHTML(dfOutput, pahtOutput, schemaInconnu):
 		for messageeErreur in schemaInconnu:
 			styleInconnu = styleInconnu+"""<div class="alert alert-danger" role="alert">{msgErreur}</div>""".format(msgErreur=messageeErreur[1])
 
-	section = dfOutput[dfOutput.columns[0]].drop_duplicates().values
-	
+	# Trier les sections par ordre alpha du nom de fichier
+	df = dfOutput.sort_values(by='Ordre', ascending=True)
+	section = df[df.columns[0]].drop_duplicates().values
+
 	outputTable = list()
 	styleAccordion = ''
 	for s in section:
 		name = dfOutput[dfOutput[dfOutput.columns[0]].isin([s])][dfOutput.columns[0]].drop_duplicates()
 		df = dfOutput[dfOutput[dfOutput.columns[0]].isin([s])]
-		dfResult = df.drop(df.columns[0], axis=1)
+		dfResult = df.drop([df.columns[0],df.columns[1]], axis=1)
 		outputTable.append([name.values,dfResult])
 
 		outAccordion=''
@@ -125,7 +138,7 @@ def outFmtHTML(dfOutput, pahtOutput, schemaInconnu):
 
 		styleAccordion = """<div class="accordion accordion-flush" id="accordionFlushExample">{outputData}</div>""".format(outputData=outAccordion)
 	
-	codeScript = """$(document).ready(function () {$('table.display').DataTable();});"""
+	codeScript = """$(document).ready(function () {$('table.display').DataTable({displayLength: 100 });});"""
 	html_string = """
 		<html>
 			<head><title>ANSM - Specification règles de validation</title></head>
@@ -141,7 +154,7 @@ def outFmtHTML(dfOutput, pahtOutput, schemaInconnu):
 		  	<body>
 		  		<div class="container">
 		  			<div style="margin: 30px">
-			  			<h1 class="modal-title text-center">ANSM - Specification règles de validation</title>
+			  			<h1 class="modal-title text-center">Rapport de validation</title>
 			  		</div>
 			  		<div>
 		  				{autresfichiers}
@@ -247,15 +260,15 @@ def createResult(files: list):
 		# 
 		if len(errors) > 0:
 			for error in errors:
-				logErros.append([f[0],str(error.row),error.column,str(error.value).replace('nan',''),error.message])
+				logErros.append([f[0],f[4],str(error.row),error.column,str(error.value).replace('nan',''),error.message])
 		else:
-			logErros.append([f[0],'','','',''])
+			logErros.append([f[0],f[4],'','','',''])
 
 		errors.clear()
 
 	# Crée un dataframe de resultat
 	if len(logErros) > 0:
-		dfResult = pd.DataFrame(logErros,columns=['Fichier','Ligne','Colonne',"Valeur","Message"])
+		dfResult = pd.DataFrame(logErros,columns=['Fichier','Ordre','Ligne','Colonne',"Valeur","Message"])
 	
 	return dfResult
 	

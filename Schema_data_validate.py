@@ -141,7 +141,7 @@ def outFmtHTML(dfOutput, pahtOutput, schemaInconnu):
 	codeScript = """$(document).ready(function () {$('table.display').DataTable({displayLength: 100 });});"""
 	html_string = """
 		<html>
-			<head><title>ANSM - Specification règles de validation</title></head>
+			<head><title>Rapport de validation</title></head>
 		  	<link rel="stylesheet" type="text/css" href="dfStyle.css"/>
 		  	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
 			<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>

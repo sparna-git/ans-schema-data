@@ -26,7 +26,7 @@ def listDataFrame(pathInputs):
 			Ordre = -1
 
 			dfInput = pd.read_csv(fileInput, delimiter=';',index_col=False,encoding="cp1252")
-			dfInput.index = dfInput.index + 2
+			dfInput.index += 2
 
 			filename = os.path.basename(fileInput)
 
@@ -43,6 +43,7 @@ def listDataFrame(pathInputs):
 				index = 1
 				Ordre = 6
 			elif filename.startswith('2_1_ANS_Présentation_conditionnement_'):
+				dfInput.to_csv("conditionnement.csv")
 				type_file="conditionnement"
 				index = 1
 				Ordre = 5
@@ -207,6 +208,8 @@ def createResult(files: list):
 	nameConditionnement = ""
 	dfListeEPresentation = pd.DataFrame()
 	nameListeEPresentation = ""
+	dfESpecialite = pd.DataFrame()
+	nomESpecialite = ""
 	for m in files:
 		if m[1] == "specialite":
 			nameSpecialite = m[0]
@@ -223,6 +226,9 @@ def createResult(files: list):
 		if m[1] == "liste_événements_présentations":
 			nameListeEPresentation = m[0]
 			dfListeEPresentation = m[2]
+		if m[1] == "specialiteEvenement":
+			nomESpecialite = m[0]
+			dfESpecialite = m[2]
 
 	
 	logErros = list()
@@ -233,11 +239,12 @@ def createResult(files: list):
 		print("Vérification du fichier: "+ f[0])
 
 		if schema_to_validate == "specialite":
-		 	errors = Schema_ANS.schemaSpecialite(f[2], dfPresentation, dfConditionnement, namePresentation,nameConditionnement).validate(f[2])
+		 	errors = Schema_ANS.schemaSpecialite(f[2], dfPresentation, dfConditionnement, namePresentation,nameConditionnement,dfESpecialite,nomESpecialite).validate(f[2])
 		if schema_to_validate == "dispositif":
 		   	errors = Schema_ANS.schemaDispositif(dfSpecialite,dfPresentation,nameSpecialite,namePresentation).validate(f[2])
 		if schema_to_validate == "conditionnement":
-		   	errors = Schema_ANS.schemaConditionnement(dfSpecialite,dfPresentation,nameSpecialite,namePresentation).validate(f[2])
+			
+			errors = Schema_ANS.schemaConditionnement(dfSpecialite,dfPresentation,nameSpecialite,namePresentation).validate(f[2])
 		if schema_to_validate == "evenement":
 		   	errors = Schema_ANS.schemaEvenement(dfSpecialite,dfPresentation,nameSpecialite,namePresentation,dfListeEPresentation,nameListeEPresentation).validate(f[2])
 		if schema_to_validate == "specialiteEvenement":
@@ -256,11 +263,11 @@ def createResult(files: list):
 			if f[2]['Code CIP7'].dtype == 'float64':
 				f[2]['Code CIP7'] = f[2]['Code CIP7'].astype('Int32').astype(str)
 				
-			errors = Schema_ANS.schemaPresentation(dfSpecialite,nameSpecialite,dfPresentationDispositif,namePresentationDispositif).validate(f[2])
+			errors = Schema_ANS.schemaPresentation(dfSpecialite,nameSpecialite,dfPresentationDispositif,namePresentationDispositif,dfConditionnement,nameConditionnement).validate(f[2])
 		# 
 		if len(errors) > 0:
 			for error in errors:
-				logErros.append([f[0],f[4],str(error.row),error.column,str(error.value).replace('nan',''),error.message])
+				logErros.append([f[0],f[4],str(error.row),error.column,str(error.value).replace('nan',''),error.message+' - '+getCodeCis(f[2],error.row)])
 		else:
 			logErros.append([f[0],f[4],'','','',''])
 
@@ -268,10 +275,20 @@ def createResult(files: list):
 
 	# Crée un dataframe de resultat
 	if len(logErros) > 0:
-		dfResult = pd.DataFrame(logErros,columns=['Fichier','Ordre','Ligne','Colonne',"Valeur","Message"])
-	
+		dfResult = pd.DataFrame(logErros,columns=['Fichier','Ordre','Ligne','Colonne',"Valeur","Message"])	
 	return dfResult
 	
+
+def getCodeCis(dfSource,ligne):
+
+	try:
+		dfOutput = np.array_str(dfSource[dfSource.index == ligne][dfSource.columns[0]].values) # Code Id
+		code = dfOutput.replace('[','').replace(']','')
+		return 'Le Code est {}'.format(str(code))
+	except Exception as e:
+		return ''
+
+
 
 if __name__ == '__main__':
 	

@@ -4,10 +4,12 @@ import numpy as np
 import datetime
 import re
 import typing
-from pandas_schema import column
+from pandas_schema import Column, Schema, validation
 from pandas_schema.validation import _SeriesValidation, CustomSeriesValidation
 from pandas_schema import ValidationWarning
 from pandas_schema.errors import PanSchArgumentError
+
+import abc
 
 class ColonneObligatoire(_SeriesValidation):
     def __init__(self, **kwargs):
@@ -274,3 +276,62 @@ class InListValidation_fr(_SeriesValidation):
             return series.isin(self.options)
         else:
             return series.str.lower().isin([s.lower() for s in self.options])
+
+class validationStatut_Specialite(_SeriesValidation):
+
+    def __init__(self,dfSource,dfESpecialite,nomESpecialite,**kwargs):
+        self.dfSource = dfSource
+        self.dfESpecialite = dfESpecialite
+        self.nomESpecialite = nomESpecialite
+        super().__init__(**kwargs)
+
+    @property
+    def default_message(self):
+        return 'La valeur du Status ne correspond pas avec la valeur "EvntMar" du fichier {}'.format(self.nomESpecialite)
+
+    def recupereMaxValeur(self, dfInput):
+        
+        
+        df = dfInput[dfInput['remTerme Evnt'] == 'Changement de statut']
+        codeCis = pd.Series(df['Code CIS'].unique())
+        outputMax = list()
+        for code in codeCis:
+            dfOut = df[df['Code CIS'].isin([code]) ] 
+            dfOper = dfOut[['Code CIS','EvntMar']][dfOut['DateEvnt_Spec'].astype('datetime64[ns]') == max(dfOut['DateEvnt_Spec'].astype('datetime64[ns]'))]
+            outputMax.append([x for l in dfOper.values for x in l])
+
+        lst = list()
+        for listOutput in outputMax:
+            if len(listOutput) > 0:
+                lst.append([listOutput[0],listOutput[1]])
+        
+        dfOutput = pd.DataFrame(lst,columns=['Code CIS','EvntMar'])
+        return dfOutput
+
+    def validationStatus(self,dfESpecialite, dfSpecialite):
+
+        dfinner = pd.merge(left=dfSpecialite, right=dfESpecialite, how='left', left_on='Code CIS', right_on='Code CIS')
+        dfOutput = dfinner[['Code CIS','Statut AMM','EvntMar']]
+       
+        return dfOutput
+
+    def outputResultat(self,rowdata):
+
+        if rowdata.isna().any():
+            return True
+        else:
+            if rowdata['values'] == False:
+                return False
+            else:
+                return True
+
+    def validate(self, series: pd.Series) -> pd.Series:
+
+        #Evenement specialité
+        dfEvSpecialite = self.recupereMaxValeur(self.dfESpecialite)
+        # Validation        
+        self.df = self.validationStatus(dfEvSpecialite,self.dfSource)
+        self.df['values'] = (self.df['Statut AMM'].apply(str.lower) == self.df['EvntMar']) & ((self.df['Statut AMM'] != "nan") & (self.df['EvntMar']) != "nan")
+
+        return self.df.apply(lambda x : self.outputResultat(x),axis=1)
+       

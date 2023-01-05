@@ -3,9 +3,9 @@ from io import StringIO
 from pandas_schema import Column, Schema
 #from pandas_schema.validation import InListValidation
 
-from validation_ans_schema import MasterDetail, ValidationLongColumn, ValidationColumnStatus, validateDateAutoColumn, validateEvntMarColumn, ColonneObligatoire, validationCommentaire_ACP, longueurColonne, validateFmtDateColumn, dateApresCreation, DistinctValidation_fr, MatchesPatternValidation_fr, InListValidation_fr
+from validation_ans_schema import MasterDetail, ValidationLongColumn, ValidationColumnStatus, validateDateAutoColumn, validateEvntMarColumn, ColonneObligatoire, validationCommentaire_ACP, longueurColonne, validateFmtDateColumn, dateApresCreation, DistinctValidation_fr, MatchesPatternValidation_fr, InListValidation_fr,validationStatut_Specialite
 
-def schemaSpecialite(dfSource, dfPresentation, dfConditionnement, namePresentation, nameConditionnement):
+def schemaSpecialite(dfSource, dfPresentation, dfConditionnement, namePresentation, nameConditionnement, dfESpecialite, nomESpecialite):
 	schema_Specialite = Schema([
 			Column('Code CIS', [MatchesPatternValidation_fr(r'\d{8}'), # Doit être une chaine de caractères à 8 chiffres et obligatoire
 								DistinctValidation_fr(), #Le code doit être unique								
@@ -16,7 +16,8 @@ def schemaSpecialite(dfSource, dfPresentation, dfConditionnement, namePresentati
 			Column('Nom Spécialité',[ColonneObligatoire()]),
 			
 			Column('Statut AMM', [InListValidation_fr(['Actif', 'Archivé', 'Suspension']),
-							  ColonneObligatoire()
+							  	  ColonneObligatoire(),
+							  	  validationStatut_Specialite(dfSource,dfESpecialite, nomESpecialite)
 							  ]), 
 
 			Column('Date AMM', [validateFmtDateColumn('%d/%m/%Y'), #Valider que le formatage de la date soit accorde indiqué
@@ -43,7 +44,7 @@ def schemaSpecialite(dfSource, dfPresentation, dfConditionnement, namePresentati
 
 	return schema_Specialite
 
-def schemaPresentation(FileMaster,MasterFileName,dfPDispositif, namePDispositif):
+def schemaPresentation(FileMaster,MasterFileName,dfPDispositif, namePDispositif, dfConditionnement, nameConditionnement):
 
 	schema_presentation = Schema([
 			Column('Code CIS', [MasterDetail(FileMaster, 'Code CIS', MasterFileName),
@@ -51,7 +52,8 @@ def schemaPresentation(FileMaster,MasterFileName,dfPDispositif, namePDispositif)
 							 	]),
 			Column('Code CIP13', [MatchesPatternValidation_fr(r'\d{13}'), 
 								  ColonneObligatoire(),
-								  MasterDetail(dfPDispositif, 'Code CIP13', namePDispositif)
+								  MasterDetail(dfPDispositif, 'Code CIP13', namePDispositif),
+								  MasterDetail(dfConditionnement, 'Code CIP13', nameConditionnement)
 								  ]),
 			Column('Code CIP7',[longueurColonne(7)]),
 			Column('Nom Presentation',[ColonneObligatoire()])
@@ -193,6 +195,28 @@ def schemaListeStatus(dfSource):
 		Column('Date_Modif_Statut',[validateFmtDateColumn('%d/%m/%Y')]),
 		Column('Date_Inactiv_Statut',[dateApresCreation(dfSource[['Date_Creation_Statut','Date_Inactiv_Statut']]), 
 									validateFmtDateColumn('%d/%m/%Y')])
+		])
+
+	return schema_liste_status
+
+def schemaUCD():
+
+	schema_UCD = Schema([
+		Column('CodeUCD',[ColonneObligatoire(),MatchesPatternValidation_fr(r'\d{10}')]),
+		Column('CodeCIP',[ColonneObligatoire(),MatchesPatternValidation_fr(r'\d{7}')]),
+		Column('LibelleUCD',[ColonneObligatoire()]),
+		Column('LibelleCIP'),
+		Column('Laboratoire'),
+		Column('Qte',[ColonneObligatoire()]),
+		Column('EphMRA'),
+		Column('CodeUCD13',[ColonneObligatoire(),MatchesPatternValidation_fr(r'\w{13}')]),
+		Column('CodeCIP13',[ColonneObligatoire()]),
+		Column('Type autorisation 1'),
+		Column('Type autorisation 2'),
+		Column('Date de commercialisation'),
+		Column('Date de suppression'),
+		Column('Quantité conditionnement Primaire'),
+		Column('Unité conditionnement primaire')
 		])
 
 	return schema_liste_status

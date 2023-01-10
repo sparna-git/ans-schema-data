@@ -1,9 +1,10 @@
 import chardet
 from io import StringIO
 from pandas_schema import Column, Schema
-#from pandas_schema.validation import InListValidation
+from pandas_schema.validation import InListValidation, IsDtypeValidation
+import numpy as np
 
-from validation_ans_schema import MasterDetail, ValidationLongColumn, ValidationColumnStatus, validateDateAutoColumn, validateEvntMarColumn, ColonneObligatoire, validationCommentaire_ACP, longueurColonne, validateFmtDateColumn, dateApresCreation, DistinctValidation_fr, MatchesPatternValidation_fr, InListValidation_fr,validationStatut_Specialite
+from validation_ans_schema import MasterDetail, ValidationLongColumn, ValidationColumnStatus, validateDateAutoColumn, validateEvntMarColumn, ColonneObligatoire, validationValeurList, longueurColonne, validateFmtDateColumn, dateApresCreation, DistinctValidation_fr, MatchesPatternValidation_fr, InListValidation_fr,validationStatut_Specialite,validateIntValeur, validateValeurIntorVergule
 
 def schemaSpecialite(dfSource, dfPresentation, dfConditionnement, namePresentation, nameConditionnement, dfESpecialite, nomESpecialite):
 	schema_Specialite = Schema([
@@ -39,12 +40,12 @@ def schemaSpecialite(dfSource, dfPresentation, dfConditionnement, namePresentati
 			Column('Code_ATC', [ColonneObligatoire()]), #fonction pour valider que la colonne doit être présent obligatoirement 
 			Column('Classe virtuelle', [ColonneObligatoire()]), #fonction pour valider que la colonne doit être présent obligatoirement 
 
-			Column('commentaire ACP',[validationCommentaire_ACP(['Enregistrement homéo', 'Spécialité de phyto', 'Spécialité contenant plus de 3 SA'])])
+			Column('commentaire ACP',[validationValeurList(['Enregistrement homéo', 'Spécialité de phyto', 'Spécialité contenant plus de 3 SA'])])
 	])
 
 	return schema_Specialite
 
-def schemaPresentation(FileMaster,MasterFileName,dfPDispositif, namePDispositif, dfConditionnement, nameConditionnement):
+def schemaPresentation(FileMaster,MasterFileName,dfPDispositif, namePDispositif, dfConditionnement, nameConditionnement, dfUCD, nomUCD):
 
 	schema_presentation = Schema([
 			Column('Code CIS', [MasterDetail(FileMaster, 'Code CIS', MasterFileName),
@@ -53,7 +54,8 @@ def schemaPresentation(FileMaster,MasterFileName,dfPDispositif, namePDispositif,
 			Column('Code CIP13', [MatchesPatternValidation_fr(r'\d{13}'), 
 								  ColonneObligatoire(),
 								  MasterDetail(dfPDispositif, 'Code CIP13', namePDispositif),
-								  MasterDetail(dfConditionnement, 'Code CIP13', nameConditionnement)
+								  MasterDetail(dfConditionnement, 'Code CIP13', nameConditionnement),
+								  MasterDetail(dfUCD, 'CodeCIP13', nomUCD)
 								  ]),
 			Column('Code CIP7',[longueurColonne(7)]),
 			Column('Nom Presentation',[ColonneObligatoire()])
@@ -123,7 +125,7 @@ def schemaSpecialiteComposition(FileMaster,MasterFileName):
 	
 	schema_composition= Schema([
 		Column('Code CIS',[ColonneObligatoire(),
-					MasterDetail(FileMaster,'Code CIS', MasterFileName)					
+					MasterDetail(FileMaster,'Code CIS', MasterFileName)
 			]),
 		Column('numElement', [ColonneObligatoire(),
 					ValidationLongColumn()		
@@ -199,24 +201,24 @@ def schemaListeStatus(dfSource):
 
 	return schema_liste_status
 
-def schemaUCD():
+def schemaUCD(dfPresentation, namePresentation):
 
 	schema_UCD = Schema([
-		Column('CodeUCD',[ColonneObligatoire(),MatchesPatternValidation_fr(r'\d{10}')]),
-		Column('CodeCIP',[ColonneObligatoire(),MatchesPatternValidation_fr(r'\d{7}')]),
+		Column('CodeUCD',[ColonneObligatoire(),MatchesPatternValidation_fr(r'\d{7}')]),
+		Column('CodeCIP',[ColonneObligatoire(),MatchesPatternValidation_fr(r'\d{7}'),DistinctValidation_fr()]),
 		Column('LibelleUCD',[ColonneObligatoire()]),
 		Column('LibelleCIP'),
 		Column('Laboratoire'),
-		Column('Qte',[ColonneObligatoire()]),
+		Column('Qte',[ColonneObligatoire(),validateIntValeur()]),
 		Column('EphMRA'),
 		Column('CodeUCD13',[ColonneObligatoire(),MatchesPatternValidation_fr(r'\w{13}')]),
-		Column('CodeCIP13',[ColonneObligatoire()]),
+		Column('CodeCIP13',[ColonneObligatoire(),MasterDetail(dfPresentation,'Code CIP13', namePresentation)]),
 		Column('Type autorisation 1'),
 		Column('Type autorisation 2'),
-		Column('Date de commercialisation'),
-		Column('Date de suppression'),
-		Column('Quantité conditionnement Primaire'),
-		Column('Unité conditionnement primaire')
+		Column('Date de commercialisation',[ColonneObligatoire(),validateFmtDateColumn('%d/%m/%Y')]),
+		Column('Date de suppression',[validateFmtDateColumn('%d/%m/%Y')]),
+		Column('Quantité conditionnement Primaire',[validateValeurIntorVergule()]),
+		Column('Unité conditionnement primaire',[validationValeurList(['DOSE','GRAMME','KG','LITRE','MEGABECQUEREL','MILLIGRAMME','MILLILITRES','UNITE-INTERNATIONALE'])])
 		])
 
-	return schema_liste_status
+	return schema_UCD

@@ -9,7 +9,7 @@ from pandas_schema.validation import _SeriesValidation, CustomSeriesValidation
 from pandas_schema import ValidationWarning
 from pandas_schema.errors import PanSchArgumentError
 
-import abc
+#import abc
 
 class ColonneObligatoire(_SeriesValidation):
     def __init__(self, **kwargs):
@@ -60,6 +60,8 @@ class MasterDetail(_SeriesValidation):
         outputList = list()
         self.series = series
         
+        #print(self.series.name)
+
         dfResult = pd.DataFrame()
         dfResult[self.columnKey] = self.series
         dfResult["Value"] = self.series.isin(self.masterSource[self.columnKey])
@@ -149,7 +151,7 @@ class longueurColonne(_SeriesValidation):
         s = series.replace('<NA>','-')
         return s.astype(str).apply(self.returnValue)
 
-class validationCommentaire_ACP(_SeriesValidation):
+class validationValeurList(_SeriesValidation):
 
     def __init__(self, condition ,**kwargs):
         self.condition = condition
@@ -335,3 +337,54 @@ class validationStatut_Specialite(_SeriesValidation):
 
         return self.df.apply(lambda x : self.outputResultat(x),axis=1)
        
+
+class validateIntValeur(_SeriesValidation):
+    def __init__(self,**kwargs):
+        super().__init__(**kwargs)
+
+    @property
+    def default_message(self):
+        return 'La valeur Quantité n\'est pas un intier'
+
+    def validaTypeInt(self,value):
+        valeur = str(value)
+        if valeur != 'nan':
+            i,d = valeur.split('.')
+            if int(d) == 0:
+                return True
+            else:
+                return False
+        else:
+            return True
+
+    def validate(self, series: pd.Series) -> pd.Series:
+        return series.apply(self.validaTypeInt)
+
+
+class validateValeurIntorVergule(_SeriesValidation):
+    def __init__(self,**kwargs):
+        super().__init__(**kwargs)
+
+    @property
+    def default_message(self):
+        return 'La valeur Quantité n\'est pas un intier'
+
+    def validaValeur(self,value):
+        valeur = str(value)
+        if valeur != 'nan':
+            try:
+                if "." in valeur:
+                    return False
+                else:
+                    float(valeur).is_integer()
+                    return True
+            except:
+                if "," in valeur:
+                    return True
+                else:
+                    return False
+        else:
+            return True
+
+    def validate(self, series: pd.Series) -> pd.Series:
+        return series.apply(self.validaValeur)

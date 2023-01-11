@@ -24,22 +24,27 @@ class ColonneObligatoire(_SeriesValidation):
 
         return ~self.series.isna()
 
-class ValidationLongColumn(_SeriesValidation):
-    """
-    Checks that each element in the series is within a given numerical range
-    """
-
-    def __init__(self, **kwargs):
+class ValidationNumElement(_SeriesValidation):
+    
+    def __init__(self, dfsource, dfsourcefk, nomFichier, **kwargs):
+        self.dfsource = dfsource
+        self.dfsourcefk = dfsourcefk
+        self.nomFichier = nomFichier
         super().__init__(**kwargs)
 
     @property
     def default_message(self):
-        return 'La valeur doit être un chiffre entre 0 et 9'
+        return 'Le Code Cis et le nombre de Element n\'existe pas dans le fichier {}'.format(self.nomFichier)
 
     def validate(self, series: pd.Series) -> pd.Series:
         self.series = series
 
-        return self.series.between(1,9,inclusive='both')
+        dfSourcePK = pd.DataFrame()
+        dfSourceFK = pd.DataFrame()
+        dfSourcePK['CodeCis-Element']  = self.dfsource['Code CIS'].astype(str)+'-'+self.dfsource['numElement'].astype(str)
+        dfSourceFK['CodeCis-Element'] = self.dfsourcefk['Code CIS'].astype(str)+'-'+self.dfsourcefk['numElement'].astype(str)
+
+        return dfSourcePK['CodeCis-Element'].isin(dfSourceFK['CodeCis-Element'])
 
 class MasterDetail(_SeriesValidation):
 
@@ -337,7 +342,6 @@ class validationStatut_Specialite(_SeriesValidation):
 
         return self.df.apply(lambda x : self.outputResultat(x),axis=1)
        
-
 class validateIntValeur(_SeriesValidation):
     def __init__(self,**kwargs):
         super().__init__(**kwargs)
@@ -359,7 +363,6 @@ class validateIntValeur(_SeriesValidation):
 
     def validate(self, series: pd.Series) -> pd.Series:
         return series.apply(self.validaTypeInt)
-
 
 class validateValeurIntorVergule(_SeriesValidation):
     def __init__(self,**kwargs):

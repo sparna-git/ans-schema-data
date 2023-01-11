@@ -4,7 +4,7 @@ from pandas_schema import Column, Schema
 from pandas_schema.validation import InListValidation, IsDtypeValidation
 import numpy as np
 
-from validation_ans_schema import MasterDetail, ValidationLongColumn, ValidationColumnStatus, validateDateAutoColumn, validateEvntMarColumn, ColonneObligatoire, validationValeurList, longueurColonne, validateFmtDateColumn, dateApresCreation, DistinctValidation_fr, MatchesPatternValidation_fr, InListValidation_fr,validationStatut_Specialite,validateIntValeur, validateValeurIntorVergule
+from validation_ans_schema import MasterDetail, ValidationNumElement, ValidationColumnStatus, validateDateAutoColumn, validateEvntMarColumn, ColonneObligatoire, validationValeurList, longueurColonne, validateFmtDateColumn, dateApresCreation, DistinctValidation_fr, MatchesPatternValidation_fr, InListValidation_fr,validationStatut_Specialite,validateIntValeur, validateValeurIntorVergule
 
 def schemaSpecialite(dfSource, dfPresentation, dfConditionnement, namePresentation, nameConditionnement, dfESpecialite, nomESpecialite):
 	schema_Specialite = Schema([
@@ -74,13 +74,13 @@ def schemaDispositif(FileMaster,FilePresentation,MasterFileName, PresentationFil
 
 	return schema_dispositif
 
-def schemaConditionnement(FileMaster,FilePresentation,MasterFileName, PresentationFileName):
+def schemaConditionnement(dfSource,FileMaster,FilePresentation,MasterFileName, PresentationFileName,dfComposition,nomComposition):
 
 	schema_Conditionnement = Schema([
 			Column('Code CIS', [MasterDetail(FileMaster,'Code CIS', MasterFileName), ColonneObligatoire()]),
 			Column('Code CIP13', [MasterDetail(FilePresentation,'Code CIP13', PresentationFileName)]),
 			Column('Nom Element', [ColonneObligatoire()]),
-			Column('numElement',[ValidationLongColumn()]),
+			Column('numElement',[ValidationNumElement(dfSource,dfComposition,nomComposition)]),
 			Column('Recipient', [ColonneObligatoire()])
 		])
 
@@ -121,14 +121,14 @@ def schemaEvenement(FileMaster,FilePresentation,MasterFileName, PresentationFile
 
 	return schema_Evenement
 
-def schemaSpecialiteComposition(FileMaster,MasterFileName):
+def schemaSpecialiteComposition(dfSource,FileMaster,MasterFileName,dfConditionnement, nomConditionnement):
 	
 	schema_composition= Schema([
 		Column('Code CIS',[ColonneObligatoire(),
 					MasterDetail(FileMaster,'Code CIS', MasterFileName)
 			]),
 		Column('numElement', [ColonneObligatoire(),
-					ValidationLongColumn()		
+					ValidationNumElement(dfSource,dfConditionnement,nomConditionnement)		
 				]),
 		Column('Forme pharmaceutique Elmt',[ColonneObligatoire()]),
 		Column('Nom Element', [ColonneObligatoire()]),

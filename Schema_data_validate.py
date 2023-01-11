@@ -215,7 +215,8 @@ def createResult(files: list):
 	nomESpecialite = ""
 	dfUCD = pd.DataFrame()
 	nomUCD = ""
-
+	dfComposition = pd.DataFrame()
+	nomComposition = ""
 	for m in files:
 		if m[1] == "specialite":
 			nameSpecialite = m[0]
@@ -235,6 +236,9 @@ def createResult(files: list):
 		if m[1] == "specialiteEvenement":
 			nomESpecialite = m[0]
 			dfESpecialite = m[2]
+		if m[1] == "composition":
+			nomComposition = m[0]
+			dfComposition = m[2]
 		if m[1] == "UCD":
 			nomUCD = m[0]
 			dfUCD = m[2]
@@ -251,8 +255,8 @@ def createResult(files: list):
 		 	errors = Schema_ANS.schemaSpecialite(f[2], dfPresentation, dfConditionnement, namePresentation,nameConditionnement,dfESpecialite,nomESpecialite).validate(f[2])
 		if schema_to_validate == "dispositif":
 		   	errors = Schema_ANS.schemaDispositif(dfSpecialite,dfPresentation,nameSpecialite,namePresentation).validate(f[2])
-		if schema_to_validate == "conditionnement":			
-			errors = Schema_ANS.schemaConditionnement(dfSpecialite,dfPresentation,nameSpecialite,namePresentation).validate(f[2])
+		if schema_to_validate == "conditionnement":
+			errors = Schema_ANS.schemaConditionnement(f[2],dfSpecialite,dfPresentation,nameSpecialite,namePresentation,dfComposition,nomComposition).validate(f[2])
 		if schema_to_validate == "evenement":
 		   	errors = Schema_ANS.schemaEvenement(dfSpecialite,dfPresentation,nameSpecialite,namePresentation,dfListeEPresentation,nameListeEPresentation).validate(f[2])
 		if schema_to_validate == "specialiteEvenement":
@@ -260,7 +264,7 @@ def createResult(files: list):
 		if schema_to_validate == "composition":
 		 	df = f[2]
 		 	df['CIS-Element-Substance'] = df['Code CIS'].astype(str)+'-'+df['numElement'].astype(str)+'-'+df['Code substance'].astype(str)+'-'+df['numOrdreEdit'].astype(str)
-		 	errors = Schema_ANS.schemaSpecialiteComposition(dfSpecialite,nameSpecialite).validate(df)		 	
+		 	errors = Schema_ANS.schemaSpecialiteComposition(df,dfSpecialite,nameSpecialite,dfConditionnement,nameConditionnement).validate(df)		 	
 		if schema_to_validate == "list_procedure":
 		 	errors = Schema_ANS.schemaListeProcedure(f[2]).validate(f[2])
 		if schema_to_validate == "liste_événements_présentations":

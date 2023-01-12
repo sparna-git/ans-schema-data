@@ -132,7 +132,7 @@ def schemaSpecialiteComposition(dfSource,FileMaster,MasterFileName,dfConditionne
 				]),
 		Column('Forme pharmaceutique Elmt',[ColonneObligatoire()]),
 		Column('Nom Element', [ColonneObligatoire()]),
-		Column('Référence dosage', [ColonneObligatoire()]),
+		Column('Référence dosage'),
 		Column('Code substance', [ColonneObligatoire()]),
 		Column('Nom Nature', [InListValidation_fr(['Substances actives.', 'Fractions thérapeutiques.']),
 							  ColonneObligatoire()

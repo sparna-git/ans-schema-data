@@ -297,7 +297,7 @@ def getCodeCis(dfSource,ligne):
 	try:
 		dfOutput = np.array_str(dfSource[dfSource.index == ligne][dfSource.columns[0]].values) # Code Id
 		code = dfOutput.replace('[','').replace(']','')
-		return 'Le Code est {}'.format(str(code))
+		return 'CIS : {}'.format(str(code))
 	except Exception as e:
 		return ''
 
@@ -330,13 +330,15 @@ if __name__ == '__main__':
 		path = Path(output_result)
 		path.mkdir(parents=True)			
 	
+
+	print("Ecriture des rapports de validation dans '"+ output_result +"'...")
+
 	if not result.empty:
-		csv_file = os.path.join(output_result,'rappot.csv')
+		csv_file = os.path.join(output_result,'rapport.csv')
 		# Creeer fichier csv
 		result.to_csv(csv_file,header=True,index=False)
 
 	html_file = os.path.join(output_result,'rapport.html')
 	# Creeer fichier html
-	outFmtHTML(result,html_file,fichiersInconnu)	
-
-	print("Ecriture des rapports de validation dans '"+ output_result +"'")
+	outFmtHTML(result,html_file,fichiersInconnu)
+	print("Script terminé ;-)")	

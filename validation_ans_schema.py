@@ -34,7 +34,7 @@ class ValidationNumElement(_SeriesValidation):
 
     @property
     def default_message(self):
-        return 'Le Code Cis et le nombre de Element n\'existe pas dans le fichier {}'.format(self.nomFichier)
+        return 'Cet identifiant d''élément pour ce code CIS n\'existe pas dans le fichier {}'.format(self.nomFichier)
 
     def validate(self, series: pd.Series) -> pd.Series:
         self.series = series
@@ -348,7 +348,7 @@ class validateIntValeur(_SeriesValidation):
 
     @property
     def default_message(self):
-        return 'La valeur Quantité n\'est pas un intier'
+        return 'La valeur n\'est pas un entier'
 
     def validaTypeInt(self,value):
         valeur = str(value)

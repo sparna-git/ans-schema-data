@@ -303,8 +303,10 @@ class validationStatut_Specialite(_SeriesValidation):
         codeCis = pd.Series(df['Code CIS'].unique())
         outputMax = list()
         for code in codeCis:
-            dfOut = df[df['Code CIS'].isin([code]) ] 
-            dfOper = dfOut[['Code CIS','EvntMar']][dfOut['DateEvnt_Spec'].astype('datetime64[ns]') == max(dfOut['DateEvnt_Spec'].astype('datetime64[ns]'))]
+            dfOut = df[df['Code CIS'].isin([code])]
+            dfOper = dfOut[['Code CIS','EvntMar']][pd.to_datetime(dfOut['DateEvnt_Spec'],format='%d/%m/%Y') == max(pd.to_datetime(dfOut['DateEvnt_Spec'],format='%d/%m/%Y'))]
+            print(dfOper)
+            #[dfOut['DateEvnt_Spec'].astype('datetime64[ns]') == max(dfOut['DateEvnt_Spec'].astype('datetime64[ns]'))]
             outputMax.append([x for l in dfOper.values for x in l])
 
         lst = list()

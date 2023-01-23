@@ -80,7 +80,7 @@ def schemaConditionnement(dfSource,FileMaster,FilePresentation,MasterFileName, P
 			Column('Code CIS', [MasterDetail(FileMaster,'Code CIS', MasterFileName), ColonneObligatoire()]),
 			Column('Code CIP13', [MasterDetail(FilePresentation,'Code CIP13', PresentationFileName)]),
 			Column('Nom Element', [ColonneObligatoire()]),
-			Column('numElement',[ValidationNumElement(dfSource,dfComposition,nomComposition)]),
+			Column('numElement'),
 			Column('Recipient', [ColonneObligatoire()])
 		])
 

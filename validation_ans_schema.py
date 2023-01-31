@@ -397,7 +397,6 @@ class validateValeurIntorVergule(_SeriesValidation):
 class validateCle(_SeriesValidation):
     def __init__(self, dfSource, colonne,nomFichier,**kwargs):
         self.df = dfSource
-        self.df.info()
         self.nomFichier = nomFichier
         self.colonne = colonne
         super().__init__(**kwargs)

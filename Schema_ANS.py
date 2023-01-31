@@ -4,9 +4,9 @@ from pandas_schema import Column, Schema
 from pandas_schema.validation import InListValidation, IsDtypeValidation
 import numpy as np
 
-from validation_ans_schema import MasterDetail, ValidationNumElement, ValidationColumnStatus, validateDateAutoColumn, validateEvntMarColumn, ColonneObligatoire, validationValeurList, longueurColonne, validateFmtDateColumn, dateApresCreation, DistinctValidation_fr, MatchesPatternValidation_fr, InListValidation_fr,validationStatut_Specialite,validateIntValeur, validateValeurIntorVergule
+from validation_ans_schema import MasterDetail, ValidationNumElement, ValidationColumnStatus, validateDateAutoColumn, validateEvntMarColumn, ColonneObligatoire, validationValeurList, longueurColonne, validateFmtDateColumn, dateApresCreation, DistinctValidation_fr, MatchesPatternValidation_fr, InListValidation_fr,validationStatut_Specialite,validateIntValeur, validateValeurIntorVergule, validateCle
 
-def schemaSpecialite(dfSource, dfPresentation, dfConditionnement, namePresentation, nameConditionnement, dfESpecialite, nomESpecialite):
+def schemaSpecialite(dfSource, dfPresentation, dfConditionnement, namePresentation, nameConditionnement, dfESpecialite, nomESpecialite,dfLStatus,nomLStatus,dfLProcedures,nomLProcedures):
 	schema_Specialite = Schema([
 			Column('Code CIS', [MatchesPatternValidation_fr(r'\d{8}'), # Doit être une chaine de caractères à 8 chiffres et obligatoire
 								DistinctValidation_fr(), #Le code doit être unique								
@@ -14,17 +14,14 @@ def schemaSpecialite(dfSource, dfPresentation, dfConditionnement, namePresentati
 								MasterDetail(dfPresentation, 'Code CIS', namePresentation), #Presentation
 								MasterDetail(dfConditionnement, 'Code CIS', nameConditionnement) #Conditionnement
 								]),
-			Column('Nom Spécialité',[ColonneObligatoire()]),
-			
-			Column('Statut AMM', [InListValidation_fr(['Actif', 'Archivé', 'Suspension']),
-							  	  ColonneObligatoire(),
+			Column('Nom Spécialité',[ColonneObligatoire()]),			
+			Column('Statut AMM', [ColonneObligatoire(),
 							  	  validationStatut_Specialite(dfSource,dfESpecialite, nomESpecialite)
 							  ]), 
-
+			Column('Code Statut',[ColonneObligatoire(),MasterDetail(dfLStatus, 'Id_ANSM_Statut', nomLStatus)]),
 			Column('Date AMM', [validateFmtDateColumn('%d/%m/%Y'), #Valider que le formatage de la date soit accorde indiqué
 								ColonneObligatoire()
 								]),
-
 			Column('Date Auto',[validateFmtDateColumn('%d/%m/%Y') #Valider que le formatage de la date soit accorde indiqué
 								, validateDateAutoColumn(dfSource)
 								],allow_empty=True),
@@ -32,15 +29,12 @@ def schemaSpecialite(dfSource, dfPresentation, dfConditionnement, namePresentati
 										ValidationColumnStatus(dfSource)
 										],allow_empty=True),
 
-			Column('Procédure', [InListValidation_fr(["Autorisation d'importation parallèle", 'Procédure centralisée','Procédure décentralisée', 'Procédure de reconnaissance mutuelle', 'Procédure nationale']),
-							ColonneObligatoire()
-							]),
-
+			Column('Procédure', [ColonneObligatoire()]),
+			Column('Code Procédure',[ColonneObligatoire(),validateCle(dfLProcedures, 'Id_ANSM_proc',nomLProcedures)]),
 			Column('Lib_ATC', [ColonneObligatoire()]), #fonction pour valider que la colonne doit être présent obligatoirement 
-			Column('Code_ATC', [ColonneObligatoire()]), #fonction pour valider que la colonne doit être présent obligatoirement 
-			Column('Classe virtuelle', [ColonneObligatoire()]), #fonction pour valider que la colonne doit être présent obligatoirement 
-
-			Column('commentaire ACP',[validationValeurList(['Enregistrement homéo', 'Spécialité de phyto', 'Spécialité contenant plus de 3 SA'])])
+			Column('Code_ATC', [ColonneObligatoire()]) #fonction pour valider que la colonne doit être présent obligatoirement 
+			#Column('Classe virtuelle', [ColonneObligatoire()]), #fonction pour valider que la colonne doit être présent obligatoirement 
+			#Column('commentaire ACP',[validationValeurList(['Enregistrement homéo', 'Spécialité de phyto', 'Spécialité contenant plus de 3 SA'])])
 	])
 
 	return schema_Specialite
@@ -90,10 +84,11 @@ def schemaSpecialiteEvenement(FileMaster,dfSource,MasterFileName):
 
 	schema_SpecialiteEvenement = Schema([
 		Column('Code CIS', [MasterDetail(FileMaster,'Code CIS', MasterFileName),ColonneObligatoire()]),
-		Column('codeEvntSpec',[ColonneObligatoire()]),
-		Column('DateEvnt_Spec',[validateFmtDateColumn('%d/%m/%Y'),
+		Column('codeEvnt',[ColonneObligatoire()]),
+		Column('Date Evnt',[validateFmtDateColumn('%d/%m/%Y'),
 							ColonneObligatoire()
 										]),
+		Column('Date Echéance'),
 		Column('remTerme Evnt', [InListValidation_fr(['Changement de procédure', 'Changement de statut']),
 							  ColonneObligatoire()
 							  ]),
@@ -137,7 +132,7 @@ def schemaSpecialiteComposition(dfSource,FileMaster,MasterFileName,dfConditionne
 		Column('Nom Nature', [InListValidation_fr(['Substances actives.', 'Fractions thérapeutiques.']),
 							  ColonneObligatoire()
 							  ]),
-		Column('Sub Dosage'),
+		#Column('Sub Dosage'),
 		Column('numOrdreEdit',[ColonneObligatoire(),
 							   MatchesPatternValidation_fr(r'^[0-9]*$')	
 							]),

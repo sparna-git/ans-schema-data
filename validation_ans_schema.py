@@ -304,7 +304,7 @@ class validationStatut_Specialite(_SeriesValidation):
         outputMax = list()
         for code in codeCis:
             dfOut = df[df['Code CIS'].isin([code])]
-            dfOper = dfOut[['Code CIS','EvntMar']][pd.to_datetime(dfOut['DateEvnt_Spec'],format='%d/%m/%Y') == max(pd.to_datetime(dfOut['DateEvnt_Spec'],format='%d/%m/%Y'))]
+            dfOper = dfOut[['Code CIS','EvntMar']][pd.to_datetime(dfOut['Date Evnt'],format='%d/%m/%Y') == max(pd.to_datetime(dfOut['Date Evnt'],format='%d/%m/%Y'))]
             #[dfOut['DateEvnt_Spec'].astype('datetime64[ns]') == max(dfOut['DateEvnt_Spec'].astype('datetime64[ns]'))]
             outputMax.append([x for l in dfOper.values for x in l])
 
@@ -392,3 +392,26 @@ class validateValeurIntorVergule(_SeriesValidation):
 
     def validate(self, series: pd.Series) -> pd.Series:
         return series.apply(self.validaValeur)
+
+
+class validateCle(_SeriesValidation):
+    def __init__(self, dfSource, colonne,nomFichier,**kwargs):
+        self.df = dfSource
+        self.df.info()
+        self.nomFichier = nomFichier
+        self.colonne = colonne
+        super().__init__(**kwargs)
+
+    @property
+    def default_message(self):
+        return 'La valeur de la procedure n\'exist pas dans le fichier {}'.format(self.nomFichier)
+
+    def evaluer(self,value):
+        try:
+            int(value) in self.df[self.colonne]
+            return True
+        except:
+            return False
+            
+    def validate(self, series: pd.Series) -> pd.Series:
+        return series.apply(self.evaluer)

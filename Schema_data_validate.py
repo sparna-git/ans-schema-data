@@ -33,7 +33,7 @@ def listDataFrame(pathInputs):
 			if filename.startswith('1_ANS_Spécialité_pharmaceutique_'):
 				type_file="specialite"
 				index = 1
-				Ordre = 1
+				Ordre = 1				
 			elif filename.startswith('2_ANS_Présentation_'):
 				type_file="presentation"
 				index = 1
@@ -217,6 +217,10 @@ def createResult(files: list):
 	nomUCD = ""
 	dfComposition = pd.DataFrame()
 	nomComposition = ""
+	dfLStatus = pd.DataFrame()
+	nomLStatus = ""
+	dfLProcedures = pd.DataFrame()
+	nomLProcedures = ""
 	for m in files:
 		if m[1] == "specialite":
 			nameSpecialite = m[0]
@@ -242,7 +246,12 @@ def createResult(files: list):
 		if m[1] == "UCD":
 			nomUCD = m[0]
 			dfUCD = m[2]
-
+		if m[1] == "liste_statuts":
+			nomLStatus = m[0]
+			dfLStatus = m[2]
+		if m[1] == "list_procedure":
+			nomLProcedures = m[0]
+			dfLProcedures = m[2]
 	
 	logErros = list()
 	errors = list()
@@ -252,7 +261,7 @@ def createResult(files: list):
 		print("Vérification du fichier: "+ f[0])
 
 		if schema_to_validate == "specialite":
-		 	errors = Schema_ANS.schemaSpecialite(f[2], dfPresentation, dfConditionnement, namePresentation,nameConditionnement,dfESpecialite,nomESpecialite).validate(f[2])
+			errors = Schema_ANS.schemaSpecialite(f[2], dfPresentation, dfConditionnement, namePresentation,nameConditionnement,dfESpecialite,nomESpecialite,dfLStatus,nomLStatus,dfLProcedures,nomLProcedures).validate(f[2])		 	
 		if schema_to_validate == "dispositif":
 		   	errors = Schema_ANS.schemaDispositif(dfSpecialite,dfPresentation,nameSpecialite,namePresentation).validate(f[2])
 		if schema_to_validate == "conditionnement":

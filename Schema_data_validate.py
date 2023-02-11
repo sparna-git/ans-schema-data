@@ -30,52 +30,52 @@ def listDataFrame(pathInputs):
 
 			filename = os.path.basename(fileInput)
 
-			if filename.startswith('1_ANS_Spécialité_pharmaceutique_'):
+			if filename.startswith('1_ANS_Specialite_Pharmaceutique'):
 				type_file="specialite"
 				index = 1
 				Ordre = 1				
-			elif filename.startswith('2_ANS_Présentation_'):
+			elif filename.startswith('2_ANS_Presentation'):
 				type_file="presentation"
 				index = 1
 				Ordre = 4
-			elif filename.startswith('2_2_ANS_Présentation_dispositif_'):
+			elif filename.startswith('2_2_ANS_Presentation_dispositif'):
 				type_file="dispositif"
 				index = 1
 				Ordre = 6
-			elif filename.startswith('2_1_ANS_Présentation_conditionnement_'):
+			elif filename.startswith('2_1_ANS_Presentation_conditionnement'):
 				type_file="conditionnement"
 				index = 1
 				Ordre = 5
-			elif filename.startswith('2_3_ANS_Présentation_événement_'):
+			elif filename.startswith('2_3_ANS_Presentation_evenement'):
 				type_file="evenement"
 				index = 1
 				Ordre = 7
-			elif filename.startswith('1_2_ANS_Spécialité_pharmaceutique_événement_'):
+			elif filename.startswith('1_2_ANS_Specialite_Pharmaceutique_Evenement'):
 				type_file="specialiteEvenement"
 				index = 1
 				Ordre = 2
-			elif filename.startswith('1_3_ANS_Spécialité_pharmaceutique_composition_'):
+			elif filename.startswith('1_3_ANS_Specialite_Pharmaceutique_Composition'):
 				type_file="composition"
 				index = 1
 				Ordre = 3
-			elif filename.startswith('ANS_Liste_ procédures_'):
+			elif filename.startswith('ANS_Liste_procedures'):
 				type_file="list_procedure"
 				index = 1
 				Ordre = 9
-			elif filename.startswith('ANS_Liste_événements_présentations_'):
+			elif filename.startswith('ANS_Liste_evenements_presentations'):
 				type_file="liste_événements_présentations"
 				index = 1
 				Ordre = 8
-			elif filename.startswith('ANS_Liste_statuts_'):
+			elif filename.startswith('ANS_Liste_statuts'):
 				type_file="liste_statuts"
 				index = 1
 				Ordre = 10
-			elif filename.startswith('UCDTOT_Assemblage_ANS_'):
+			elif filename.startswith('UCDTOT_Assemblage_ANS'):
 				type_file="UCD"
 				index = 1
 				Ordre = 11
 			else:
-				type_file="Erreur - Le fichier "+ filename +" ne se trouve pas dans la liste de Schema....."
+				print("Erreur - Le fichier "+ filename +" ne se trouve pas dans la liste des fichiers attendus.")
 				index = 0				
 
 			dfList.append([filename,type_file,dfInput,index,Ordre])
@@ -185,8 +185,16 @@ def createResult(files: list):
 	for si in files:
 		sourceInput.append(si[1])
 
+	print("Les types de fichiers suivants ont été trouvés :")
+	print(sourceInput)
+
 	# Chercher les fichiers importants
-	fichiers_cle = ['specialite','presentation','conditionnement','liste_événements_présentations']
+	fichiers_cle = [
+		'specialite',
+		'presentation',
+		'conditionnement',
+		'liste_événements_présentations'
+	]
 	bCle = True
 	for c in fichiers_cle:
 		try:
@@ -200,7 +208,7 @@ def createResult(files: list):
 	
 	dfResult = pd.DataFrame()
 
-	# On va chercher les fichies principal pour valider
+	# On va chercher les fichiers principal pour valider
 	dfSpecialite = pd.DataFrame()
 	nameSpecialite = ""
 	dfPresentation = pd.DataFrame()
@@ -325,15 +333,13 @@ if __name__ == '__main__':
 	"""
 		Fonction pour generer les validations avec chaque type de Schema.
 		La fonction a besoin de la liste de fichiers d'entre et une Clé de colonne principal
-
 	"""
 	fichiersSchema = list(filter(lambda x : x[3] == 1,DataFrameList))
 	fichiersInconnu = list(filter(lambda x : x[3] == 0,DataFrameList))
 	result = createResult(fichiersSchema)
 
 	"""
-		Le resultat sera sauvegarder dans un fichier html et un fichier csv
-
+		Le resultat sera sauvegardé dans un fichier html et un fichier csv
 	"""
 	if not os.path.exists(output_result):
 		path = Path(output_result)

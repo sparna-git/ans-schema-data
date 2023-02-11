@@ -31,7 +31,7 @@ jobs:
           git config --local user.email "action_validate_ansm_data@github.com"
           git config --local user.name "GitHub Action Validate ANSM data"
           git add rapport
-          git commit -m "rapport de validation" -a
+          git commit -m "rapport de validation" -a --allow-empty
           
       - name: push changes
         uses: ad-m/github-push-action@v0.6.0

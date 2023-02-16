@@ -25,60 +25,75 @@ def listDataFrame(pathInputs):
 			index = 0
 			Ordre = -1
 
-			dfInput = pd.read_csv(fileInput, delimiter=';',index_col=False,encoding="cp1252")
-			dfInput.index += 2
-
 			filename = os.path.basename(fileInput)
 
-			if filename.startswith('1_ANS_Specialite_Pharmaceutique'):
+			if filename.startswith('Specialite_Pharmaceutique_ANSM_'):
 				type_file="specialite"
 				index = 1
 				Ordre = 1				
-			elif filename.startswith('2_ANS_Presentation'):
+			elif filename.startswith('Presentation_ANSM_'):
 				type_file="presentation"
 				index = 1
 				Ordre = 4
-			elif filename.startswith('2_2_ANS_Presentation_dispositif'):
+			elif filename.startswith('Presentation_Dispositif_ANSM_'):
 				type_file="dispositif"
 				index = 1
 				Ordre = 6
-			elif filename.startswith('2_1_ANS_Presentation_conditionnement'):
+			elif filename.startswith('Presentation_Conditionnement_ANSM_'):
 				type_file="conditionnement"
 				index = 1
 				Ordre = 5
-			elif filename.startswith('2_3_ANS_Presentation_evenement'):
+			elif filename.startswith('Presentation_Evenement_ANSM_'):
 				type_file="evenement"
 				index = 1
 				Ordre = 7
-			elif filename.startswith('1_2_ANS_Specialite_Pharmaceutique_Evenement'):
+			elif filename.startswith('Specialite_Pharmaceutique_Evenement_ANSM_'):
 				type_file="specialiteEvenement"
 				index = 1
 				Ordre = 2
-			elif filename.startswith('1_3_ANS_Specialite_Pharmaceutique_Composition'):
+			elif filename.startswith('Specialite_Pharmaceutique_Composition_ANSM_'):
 				type_file="composition"
 				index = 1
 				Ordre = 3
-			elif filename.startswith('ANS_Liste_procedures'):
+			elif filename.startswith('Liste_Procedure_ANSM_'):
 				type_file="list_procedure"
 				index = 1
 				Ordre = 9
-			elif filename.startswith('ANS_Liste_evenements_presentations'):
+			elif filename.startswith('Liste_Evenement_Presentation_ANSM_'):
 				type_file="liste_événements_présentations"
 				index = 1
 				Ordre = 8
-			elif filename.startswith('ANS_Liste_statuts'):
+			elif filename.startswith('Liste_Statut_ANSM_'):
 				type_file="liste_statuts"
 				index = 1
 				Ordre = 10
-			elif filename.startswith('UCDTOT_Assemblage_ANS'):
-				type_file="UCD"
+			elif filename.startswith('Substance_ANSM_'):
+				type_file="substance"
 				index = 1
 				Ordre = 11
+			elif filename.startswith('Denominations_Substance_ANSM_'):
+				type_file="denominations_substance"
+				index = 1
+				Ordre = 12
+			elif filename.startswith('UCDTOT_Assemblage_ANS_'):
+				type_file="UCD"
+				index = 1
+				Ordre = 13
+			elif filename.startswith('Liste_Evenement_Specialite_Pharmaceutique_ANSM_'):
+				type_file="liste_Evenement_Specialite"
+				index=1
+				Ordre = 14
 			else:
-				print("Erreur - Le fichier "+ filename +" ne se trouve pas dans la liste des fichiers attendus.")
+				type_file="Erreur - Le fichier "+ filename +" ne se trouve pas dans la liste de Schema....."
 				index = 0				
 
-			dfList.append([filename,type_file,dfInput,index,Ordre])
+			if index > 0:
+				dfInput = pd.read_csv(fileInput, delimiter=';',index_col=False,encoding="cp1252")
+				dfInput.index += 2
+				dfList.append([filename,type_file,dfInput,index,Ordre])
+			else:
+				dfList.append([filename,type_file,dfInput,index,0])
+
 
 	return dfList
 
@@ -185,16 +200,8 @@ def createResult(files: list):
 	for si in files:
 		sourceInput.append(si[1])
 
-	print("Les types de fichiers suivants ont été trouvés :")
-	print(sourceInput)
-
 	# Chercher les fichiers importants
-	fichiers_cle = [
-		'specialite',
-		'presentation',
-		'conditionnement',
-		'liste_événements_présentations'
-	]
+	fichiers_cle = ['specialite','presentation','conditionnement','liste_événements_présentations']
 	bCle = True
 	for c in fichiers_cle:
 		try:
@@ -208,7 +215,7 @@ def createResult(files: list):
 	
 	dfResult = pd.DataFrame()
 
-	# On va chercher les fichiers principal pour valider
+	# On va chercher les fichies principal pour valider
 	dfSpecialite = pd.DataFrame()
 	nameSpecialite = ""
 	dfPresentation = pd.DataFrame()
@@ -229,6 +236,8 @@ def createResult(files: list):
 	nomLStatus = ""
 	dfLProcedures = pd.DataFrame()
 	nomLProcedures = ""
+	nomSubstance = ""
+	dfSubstance = pd.DataFrame()
 	for m in files:
 		if m[1] == "specialite":
 			nameSpecialite = m[0]
@@ -260,6 +269,9 @@ def createResult(files: list):
 		if m[1] == "list_procedure":
 			nomLProcedures = m[0]
 			dfLProcedures = m[2]
+		if m[1] == "substance":
+			nomSubstance = m[0]
+			dfSubstance = m[2]
 	
 	logErros = list()
 	errors = list()
@@ -280,8 +292,8 @@ def createResult(files: list):
 		  	errors = Schema_ANS.schemaSpecialiteEvenement(dfSpecialite,f[2],nameSpecialite).validate(f[2])
 		if schema_to_validate == "composition":
 		 	df = f[2]
-		 	df['CIS-Element-Substance'] = df['Code CIS'].astype(str)+'-'+df['numElement'].astype(str)+'-'+df['Code substance'].astype(str)+'-'+df['numOrdreEdit'].astype(str)
-		 	errors = Schema_ANS.schemaSpecialiteComposition(df,dfSpecialite,nameSpecialite,dfConditionnement,nameConditionnement).validate(df)		 	
+		 	df['CIS-Element-Substance'] = df['Code_CIS'].astype(str)+'-'+df['Num_Element'].astype(str)+'-'+df['Code_Substance'].astype(str)+'-'+df['numOrdreEdit'].astype(str)
+		 	errors = Schema_ANS.schemaSpecialiteComposition(df,dfSpecialite,nameSpecialite,dfConditionnement,nameConditionnement,dfSubstance,nomSubstance).validate(df)		 	
 		if schema_to_validate == "list_procedure":
 		 	errors = Schema_ANS.schemaListeProcedure(f[2]).validate(f[2])
 		if schema_to_validate == "liste_événements_présentations":
@@ -289,9 +301,15 @@ def createResult(files: list):
 		if schema_to_validate == "liste_statuts":
 		 	errors = Schema_ANS.schemaListeStatus(f[2]).validate(f[2])
 		if schema_to_validate == "presentation":
-			if f[2]['Code CIP7'].dtype == 'float64':
-				f[2]['Code CIP7'] = f[2]['Code CIP7'].astype('Int32').astype(str)				
+			if f[2]['Code_CIP7'].dtype == 'float64':
+				f[2]['Code_CIP7'] = f[2]['Code_CIP7'].astype('Int64').astype('str')				
 			errors = Schema_ANS.schemaPresentation(dfSpecialite,nameSpecialite,dfPresentationDispositif,namePresentationDispositif,dfConditionnement,nameConditionnement,dfUCD,nomUCD).validate(f[2])
+		if schema_to_validate == "substance":
+			errors = Schema_ANS.schema_substance().validate(f[2])
+		if schema_to_validate == "denominations_substance":
+			errors = Schema_ANS.schema_denominations_substance(dfSubstance,nomSubstance).validate(f[2])
+		if schema_to_validate == "liste_Evenement_Specialite":
+			errors = Schema_ANS.schemaListeEvenementSpecialite().validate(f[2])	
 		if schema_to_validate == "UCD":
 			errors = Schema_ANS.schemaUCD(dfPresentation,namePresentation).validate(f[2])
 
@@ -333,13 +351,15 @@ if __name__ == '__main__':
 	"""
 		Fonction pour generer les validations avec chaque type de Schema.
 		La fonction a besoin de la liste de fichiers d'entre et une Clé de colonne principal
+
 	"""
 	fichiersSchema = list(filter(lambda x : x[3] == 1,DataFrameList))
 	fichiersInconnu = list(filter(lambda x : x[3] == 0,DataFrameList))
 	result = createResult(fichiersSchema)
 
 	"""
-		Le resultat sera sauvegardé dans un fichier html et un fichier csv
+		Le resultat sera sauvegarder dans un fichier html et un fichier csv
+
 	"""
 	if not os.path.exists(output_result):
 		path = Path(output_result)

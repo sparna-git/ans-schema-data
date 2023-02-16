@@ -41,8 +41,8 @@ class ValidationNumElement(_SeriesValidation):
 
         dfSourcePK = pd.DataFrame()
         dfSourceFK = pd.DataFrame()
-        dfSourcePK['CodeCis-Element']  = self.dfsource['Code CIS'].astype(str)+'-'+self.dfsource['numElement'].astype(str)
-        dfSourceFK['CodeCis-Element'] = self.dfsourcefk['Code CIS'].astype(str)+'-'+self.dfsourcefk['numElement'].astype(str)
+        dfSourcePK['CodeCis-Element']  = self.dfsource['Code_CIS'].astype(str)+'-'+self.dfsource['Num_Element'].astype(str)
+        dfSourceFK['CodeCis-Element'] = self.dfsourcefk['Code_CIS'].astype(str)+'-'+self.dfsourcefk['Num_Element'].astype(str)
 
         return dfSourcePK['CodeCis-Element'].isin(dfSourceFK['CodeCis-Element'])
 
@@ -89,8 +89,10 @@ class ValidationColumnStatus(_SeriesValidation):
     def validate(self, series: pd.Series) -> pd.Series:
         self.series = series
 
-        df = self.dfSource[['Statut AMM','Date fin de statut actif AMM']]
-        outputSerie = pd.Series(df['Date fin de statut actif AMM'].dropna().where(df['Statut AMM'].isin(['Archivé','Suspension'])))
+        df = self.dfSource[self.dfSource['Date_fin_statut_actif_AMM'].notna()]
+        dfFilter = df[['Date_fin_statut_actif_AMM','Statut_AMM']]
+        #outputSerie = pd.Series(dfFilter['Date_fin_statut_actif_AMM'].dropna().where(dfFilter['Statut_AMM'].isin(['Archivé','Suspension'])))
+        outputSerie = pd.Series(dfFilter['Date_fin_statut_actif_AMM'].dropna().where(dfFilter['Statut_AMM'] != 'Actif'))
         return ~outputSerie.astype(str).str.contains("nan")
 
 class validateDateAutoColumn(_SeriesValidation):
@@ -108,8 +110,8 @@ class validateDateAutoColumn(_SeriesValidation):
     def validate(self, series: pd.Series) -> pd.Series:
 
         self.series = series
-        df = self.dfSource[['Date AMM','Date Auto']]
-        dfout = df[~df['Date Auto'].isnull()]
+        df = self.dfSource[['Date_AMM','Date_Auto']]
+        dfout = df[~df['Date_Auto'].isnull()]
        
         return ~self.series.isin(dfout)
 
@@ -124,7 +126,7 @@ class validateEvntMarColumn(_SeriesValidation):
 
     @property
     def default_message(self):
-        return 'La colonne "remTerme Evnt" est égale à "Changement de procédure", cette colonne "EvntMar" doit avoir la valeur "changement de procédure"'
+        return 'La colonne "remTerme Evnt" est égale à "Changement de procédure", cette colonne "Evnt_Mar_Spc" doit avoir la valeur "changement de procédure"'
 
 
     def validate(self, series: pd.Series) -> pd.Series:
@@ -132,7 +134,7 @@ class validateEvntMarColumn(_SeriesValidation):
         self.series = series
         
         df = self.dfSource
-        outSerie = pd.Series(df['EvntMar'].where(df['remTerme Evnt'].isin(self.conditionList) & ~df['EvntMar'].isin(self.valuesList)))
+        outSerie = pd.Series(df['Evnt_Mar_Spc'].where(df['Type_Evnt_Spc'].isin(self.conditionList) & ~df['Evnt_Mar_Spc'].isin(self.valuesList)))
 
         return outSerie.astype(str).str.contains("nan")
 
@@ -294,17 +296,17 @@ class validationStatut_Specialite(_SeriesValidation):
 
     @property
     def default_message(self):
-        return 'La valeur du Status ne correspond pas avec la valeur "EvntMar" du fichier {}'.format(self.nomESpecialite)
+        return 'La valeur du Status ne correspond pas avec la valeur "Evnt_Mar_Spc" du fichier {}'.format(self.nomESpecialite)
 
     def recupereMaxValeur(self, dfInput):
         
         
-        df = dfInput[dfInput['remTerme Evnt'] == 'Changement de statut']
-        codeCis = pd.Series(df['Code CIS'].unique())
+        df = dfInput[dfInput['Type_Evnt_Spc'] == 'Changement de statut']
+        codeCis = pd.Series(df['Code_CIS'].unique())
         outputMax = list()
         for code in codeCis:
-            dfOut = df[df['Code CIS'].isin([code])]
-            dfOper = dfOut[['Code CIS','EvntMar']][pd.to_datetime(dfOut['Date Evnt'],format='%d/%m/%Y') == max(pd.to_datetime(dfOut['Date Evnt'],format='%d/%m/%Y'))]
+            dfOut = df[df['Code_CIS'].isin([code])]
+            dfOper = dfOut[['Code_CIS','Evnt_Mar_Spc']][pd.to_datetime(dfOut['Date_Evnt_Spc'],format='%d/%m/%Y') == max(pd.to_datetime(dfOut['Date_Evnt_Spc'],format='%d/%m/%Y'))]
             #[dfOut['DateEvnt_Spec'].astype('datetime64[ns]') == max(dfOut['DateEvnt_Spec'].astype('datetime64[ns]'))]
             outputMax.append([x for l in dfOper.values for x in l])
 
@@ -313,13 +315,13 @@ class validationStatut_Specialite(_SeriesValidation):
             if len(listOutput) > 0:
                 lst.append([listOutput[0],listOutput[1]])
         
-        dfOutput = pd.DataFrame(lst,columns=['Code CIS','EvntMar'])
+        dfOutput = pd.DataFrame(lst,columns=['Code_CIS','Evnt_Mar_Spc'])
         return dfOutput
 
     def validationStatus(self,dfESpecialite, dfSpecialite):
 
-        dfinner = pd.merge(left=dfSpecialite, right=dfESpecialite, how='left', left_on='Code CIS', right_on='Code CIS')
-        dfOutput = dfinner[['Code CIS','Statut AMM','EvntMar']]
+        dfinner = pd.merge(left=dfSpecialite, right=dfESpecialite, how='left', left_on='Code_CIS', right_on='Code_CIS')
+        dfOutput = dfinner[['Code_CIS','Statut_AMM','Evnt_Mar_Spc']]
        
         return dfOutput
 
@@ -339,7 +341,7 @@ class validationStatut_Specialite(_SeriesValidation):
         dfEvSpecialite = self.recupereMaxValeur(self.dfESpecialite)
         # Validation        
         self.df = self.validationStatus(dfEvSpecialite,self.dfSource)
-        self.df['values'] = (self.df['Statut AMM'].apply(str.lower) == self.df['EvntMar']) & ((self.df['Statut AMM'] != "nan") & (self.df['EvntMar']) != "nan")
+        self.df['values'] = (self.df['Statut_AMM'].apply(str.lower) == self.df['Evnt_Mar_Spc']) & ((self.df['Statut_AMM'] != "nan") & (self.df['Evnt_Mar_Spc']) != "nan")
 
         return self.df.apply(lambda x : self.outputResultat(x),axis=1)
        

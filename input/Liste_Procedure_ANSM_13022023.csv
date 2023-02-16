@@ -1,4 +1,4 @@
-Id_ANSM_proc;Lib_Proc;Desc_proc;Date_Creation_Proc;Date_Modif_Proc;Date_Inactiv_proc
+Code_Proc;Lib_Procedure;Desc_Procedure;Date_Crea_Procedure;Date_Modif_Procedure;Date_Inactiv_Procedure
 1;Procédure nationale;;25/03/2003;;
 20;Procédure centralisée;;25/03/2003;11/07/2005;
 21;Procédure de reconnaissance mutuelle;;25/03/2003;11/07/2005;

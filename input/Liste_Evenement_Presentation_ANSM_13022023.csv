@@ -1,4 +1,4 @@
-Id_ANSM_Evenement_Pre;Lib_Evenement_Pre;Type_Evenement_Pre;Desc_Evenement_Pre;Date_Creation_Evenement_Pre;Date_Modif__Evenement_Pre;Date_Inactiv_Evenement_Pre
+Code_Evnt_Pres;Lib_Evnt_Pres;Type_Evnt_Pres;Desc_Evnt_Pres;Date_Creation_Evnt_Pres;Date_Modif_Evnt_Pres;Date_Inactiv_Evnt_Pres
 15;Déclaration de commercialisation;;;25/03/2003;13/12/2022;
 16;Déclaration d'arrêt de commercialisation;;;25/03/2003;13/12/2022;
 17;Suspension de commercialisation;;;25/03/2003;13/12/2022;

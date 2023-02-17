@@ -90,7 +90,7 @@ def schemaSpecialiteEvenement(dfSpecialite,dfSource,nameSpecialite):
 							ColonneObligatoire()
 										]),
 		Column('Date_Echeance',[validateFmtDateColumn('%d/%m/%Y')]),
-		Column('Type_Evnt_Spc', [InListValidation_fr(['Changement de procédure', 'Changement de statut']),
+		Column('Type_Evnt_Spc', [InListValidation_fr(['Changement de procédure', 'Changement de statut', 'Statut Actif']),
 							  ColonneObligatoire()
 							  ]),
 		Column('Evnt_Mar_Spc',[ColonneObligatoire()])

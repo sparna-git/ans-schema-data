@@ -332,7 +332,7 @@ def getCodeCis(dfSource,ligne):
 	try:
 		dfOutput = np.array_str(dfSource[dfSource.index == ligne][dfSource.columns[0]].values) # Code Id
 		code = dfOutput.replace('[','').replace(']','')
-		return 'CIS : {}'.format(str(code))
+		return 'ID : {}'.format(str(code))
 	except Exception as e:
 		return ''
 

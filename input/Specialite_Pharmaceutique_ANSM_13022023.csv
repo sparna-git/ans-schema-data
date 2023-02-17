@@ -1,4 +1,4 @@
-Code_ CIS;Nom_Specialite;Statut_AMM;Code_Statut;Date_AMM;Date_Auto;Date_fin_statut_actif_AMM;Procedure;Code_Procedure;Lib_ATC;Code_ATC
+Code_CIS;Nom_Specialite;Statut_AMM;Code_Statut;Date_AMM;Date_Auto;Date_fin_statut_actif_AMM;Procedure;Code_Procedure;Lib_ATC;Code_ATC
 60002283;ANASTROZOLE ACCORD 1 mg, comprimé pelliculé;Actif;1;28/10/2010;;;Procédure de reconnaissance mutuelle;21;Anastrozole;L02BG03
 60002504;RANITIDINE BIOGARAN 150 mg, comprimé effervescent;Archivé;3;04/07/1989;;08/10/2021;Procédure nationale;1;Ranitidine;A02BA02
 60003620;BECLOSPIN 800 microgrammes/2ml suspension pour inhalation par nébuliseur;Actif;1;06/01/2006;;;Procédure de reconnaissance mutuelle;21;Béclométasone;R03BA01

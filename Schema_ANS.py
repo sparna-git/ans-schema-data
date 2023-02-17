@@ -81,11 +81,13 @@ def schemaConditionnement(dfSource,FileMaster,FilePresentation,MasterFileName, P
 
 	return schema_Conditionnement
 
-def schemaSpecialiteEvenement(dfSpecialite,dfSource,nameSpecialite):
+def schemaSpecialiteEvenement(dfSpecialite,dfSource,nameSpecialite,dfL_Evenement_Specialite, nomL_Evenement_Specialite):
 
 	schema_SpecialiteEvenement = Schema([
 		Column('Code_CIS', [MasterDetail(dfSpecialite,'Code_CIS', nameSpecialite),ColonneObligatoire()]),
-		Column('Code_Evnt_Spc',[ColonneObligatoire()]),
+		Column('Code_Evnt_Spc',[ColonneObligatoire(),
+							MasterDetail(dfL_Evenement_Specialite,'Code_Evnt_Spc', nomL_Evenement_Specialite)
+						]),
 		Column('Date_Evnt_Spc',[validateFmtDateColumn('%d/%m/%Y'),
 							ColonneObligatoire()
 										]),

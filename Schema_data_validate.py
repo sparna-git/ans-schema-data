@@ -238,6 +238,8 @@ def createResult(files: list):
 	nomLProcedures = ""
 	nomSubstance = ""
 	dfSubstance = pd.DataFrame()
+	nomL_Evenement_Specialite = ""
+	dfL_Evenement_Specialite = pd.DataFrame()
 	for m in files:
 		if m[1] == "specialite":
 			nameSpecialite = m[0]
@@ -272,6 +274,9 @@ def createResult(files: list):
 		if m[1] == "substance":
 			nomSubstance = m[0]
 			dfSubstance = m[2]
+		if m[1] == "liste_Evenement_Specialite":
+			nomL_Evenement_Specialite = m[0]
+			dfL_Evenement_Specialite = m[2]
 	
 	logErros = list()
 	errors = list()
@@ -289,7 +294,7 @@ def createResult(files: list):
 		if schema_to_validate == "evenement":
 		   	errors = Schema_ANS.schemaEvenement(dfSpecialite,dfPresentation,nameSpecialite,namePresentation,dfListeEPresentation,nameListeEPresentation).validate(f[2])
 		if schema_to_validate == "specialiteEvenement":
-		  	errors = Schema_ANS.schemaSpecialiteEvenement(dfSpecialite,f[2],nameSpecialite).validate(f[2])
+		  	errors = Schema_ANS.schemaSpecialiteEvenement(dfSpecialite,f[2],nameSpecialite,dfL_Evenement_Specialite,nomL_Evenement_Specialite).validate(f[2])
 		if schema_to_validate == "composition":
 		 	df = f[2]
 		 	df['CIS-Element-Substance'] = df['Code_CIS'].astype(str)+'-'+df['Num_Element'].astype(str)+'-'+df['Code_Substance'].astype(str)+'-'+df['numOrdreEdit'].astype(str)

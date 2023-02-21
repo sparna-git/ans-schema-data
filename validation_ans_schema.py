@@ -416,3 +416,21 @@ class validateCle(_SeriesValidation):
             
     def validate(self, series: pd.Series) -> pd.Series:
         return series.apply(self.evaluer)
+        
+
+class valideCodeSubstanceFlag(_SeriesValidation):
+
+    def __init__(self, dfDenominations, **kwargs):
+        self.df = dfDenominations
+        super().__init__(**kwargs)
+
+    @property
+    def default_message(self):
+        return "Le code substance ne peut avoir qu\'une ligne avec le Flag_Substance = 'ANS nom préféré.'"
+
+    def validate(self,series: pd.Series) -> pd.Series:
+
+        df = self.df[['Code_Substance','Flag_Substance']]
+        df['CODE'] = df['Code_Substance'].astype(str)+"-"+df['Flag_Substance']
+        outputSerie = pd.Series(df['CODE'])
+        return ~outputSerie.duplicated(keep='first')

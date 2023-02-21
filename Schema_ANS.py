@@ -4,7 +4,7 @@ from pandas_schema import Column, Schema
 from pandas_schema.validation import InListValidation, IsDtypeValidation
 import numpy as np
 
-from validation_ans_schema import MasterDetail, ValidationNumElement, ValidationColumnStatus, validateDateAutoColumn, validateEvntMarColumn, ColonneObligatoire, validationValeurList, longueurColonne, validateFmtDateColumn, dateApresCreation, DistinctValidation_fr, MatchesPatternValidation_fr, InListValidation_fr,validationStatut_Specialite,validateIntValeur, validateValeurIntorVergule, validateCle
+from validation_ans_schema import MasterDetail, ValidationNumElement, ValidationColumnStatus, validateDateAutoColumn, validateEvntMarColumn, ColonneObligatoire, validationValeurList, longueurColonne, validateFmtDateColumn, dateApresCreation, DistinctValidation_fr, MatchesPatternValidation_fr, InListValidation_fr,validationStatut_Specialite,validateIntValeur, validateValeurIntorVergule, validateCle, valideCodeSubstanceFlag
 
 def schemaSpecialite(dfSource, dfPresentation, dfConditionnement, namePresentation, nameConditionnement, dfESpecialite, nomESpecialite,dfLStatus,nomLStatus,dfLProcedures,nomLProcedures):
 	schema_Specialite = Schema([
@@ -217,7 +217,7 @@ def schema_substance():
 
 	return schema_substance
 
-def schema_denominations_substance(dfSubstance, nomfichierSubstance):
+def schema_denominations_substance(dfSubstance, nomfichierSubstance, dfDenominations):
 
 	schema_denominations_substance = Schema([
 		Column('Code_Substance',[ColonneObligatoire(),
@@ -225,7 +225,10 @@ def schema_denominations_substance(dfSubstance, nomfichierSubstance):
 			]),
 		Column('code_Nom_Substance',[ColonneObligatoire()]),
 		Column('Nom_Substance',[ColonneObligatoire()]),
-		Column('Flag_Substance',[ColonneObligatoire()])
+		Column('Flag_Substance',[ColonneObligatoire(),
+								validationValeurList(['ANS nom préféré','ANS autre nom']),
+								valideCodeSubstanceFlag(dfDenominations)
+								])
 	])
 
 	return schema_denominations_substance

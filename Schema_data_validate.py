@@ -4,7 +4,6 @@ import os
 import Schema_ANS
 import numpy as np
 from pathlib import Path
-from io import StringIO
 
 def listDataFrame(pathInputs):
 	"""
@@ -19,9 +18,10 @@ def listDataFrame(pathInputs):
 		if os.path.isfile(fileInput):
 
 			print("Lecture du fichier: " + fileInput)
-				
+		
 			type_file=""
 			filename = ""
+			dtype_input = ""
 			index = 0
 			Ordre = -1
 
@@ -73,6 +73,7 @@ def listDataFrame(pathInputs):
 				Ordre = 11
 			elif filename.startswith('Denominations_Substance_ANSM_'):
 				type_file="denominations_substance"
+				dtype_input = "{'Code_Substance':'string'}"
 				index = 1
 				Ordre = 12
 			elif filename.startswith('UCDTOT_Assemblage_ANS_'):
@@ -277,6 +278,7 @@ def createResult(files: list):
 		if m[1] == "liste_Evenement_Specialite":
 			nomL_Evenement_Specialite = m[0]
 			dfL_Evenement_Specialite = m[2]
+		
 	
 	logErros = list()
 	errors = list()
@@ -310,9 +312,9 @@ def createResult(files: list):
 				f[2]['Code_CIP7'] = f[2]['Code_CIP7'].astype('Int64').astype('str')				
 			errors = Schema_ANS.schemaPresentation(dfSpecialite,nameSpecialite,dfPresentationDispositif,namePresentationDispositif,dfConditionnement,nameConditionnement,dfUCD,nomUCD).validate(f[2])
 		if schema_to_validate == "substance":
-			errors = Schema_ANS.schema_substance().validate(f[2])
+			errors = Schema_ANS.schema_substance().validate(f[2])			
 		if schema_to_validate == "denominations_substance":
-			errors = Schema_ANS.schema_denominations_substance(dfSubstance,nomSubstance).validate(f[2])
+			errors = Schema_ANS.schema_denominations_substance(dfSubstance,nomSubstance,f[2]).validate(f[2])
 		if schema_to_validate == "liste_Evenement_Specialite":
 			errors = Schema_ANS.schemaListeEvenementSpecialite().validate(f[2])	
 		if schema_to_validate == "UCD":

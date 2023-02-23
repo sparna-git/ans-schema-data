@@ -15,8 +15,8 @@ def schemaSpecialite(dfSource, dfPresentation, dfConditionnement, namePresentati
 								MasterDetail(dfConditionnement,'Code_CIS', nameConditionnement) #Conditionnement
 								]),
 			Column('Nom_Specialite',[ColonneObligatoire()]),			
-			Column('Statut_AMM', [ColonneObligatoire(),
-							  	  validationStatut_Specialite(dfSource,dfESpecialite, nomESpecialite)
+			Column('Statut_AMM', [ColonneObligatoire()
+								  #validationStatut_Specialite(dfSource,dfESpecialite, nomESpecialite)
 							  ]), 
 			Column('Code_Statut',[ColonneObligatoire(),
 								MasterDetail(dfLStatus, 'Code_Statut', nomLStatus)]),
@@ -32,10 +32,8 @@ def schemaSpecialite(dfSource, dfPresentation, dfConditionnement, namePresentati
 
 			Column('Procedure', [ColonneObligatoire()]),
 			Column('Code_Procedure',[ColonneObligatoire(),validateCle(dfLProcedures, 'Code_Proc',nomLProcedures)]),
-			Column('Lib_ATC', [ColonneObligatoire()]), #fonction pour valider que la colonne doit être présent obligatoirement 
-			Column('Code_ATC', [ColonneObligatoire()]) #fonction pour valider que la colonne doit être présent obligatoirement 
-			#Column('Classe virtuelle', [ColonneObligatoire()]), #fonction pour valider que la colonne doit être présent obligatoirement 
-			#Column('commentaire ACP',[validationValeurList(['Enregistrement homéo', 'Spécialité de phyto', 'Spécialité contenant plus de 3 SA'])])
+			Column('Lib_ATC', [ColonneObligatoire()]),
+			Column('Code_ATC', [ColonneObligatoire()])			
 	])
 
 	return schema_Specialite
@@ -247,7 +245,7 @@ def schemaUCD(dfPresentation, namePresentation):
 		Column('CodeCIP13',[ColonneObligatoire(),MasterDetail(dfPresentation,'Code_CIP13', namePresentation)]),
 		Column('Type autorisation 1'),
 		Column('Type autorisation 2'),
-		Column('Date de commercialisation',[ColonneObligatoire(),validateFmtDateColumn('%d/%m/%Y')]),
+		Column('Date de commercialisation'),
 		Column('Date de suppression',[validateFmtDateColumn('%d/%m/%Y')]),
 		Column('Quantité conditionnement Primaire',[validateValeurIntorVergule()]),
 		Column('Unité conditionnement primaire',[validationValeurList(['DOSE','GRAMME','KG','LITRE','MEGABECQUEREL','MILLIGRAMME','MILLILITRES','UNITE-INTERNATIONALE'])])

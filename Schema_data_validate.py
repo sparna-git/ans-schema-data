@@ -302,7 +302,9 @@ def createResult(files: list):
 		 	df['CIS-Element-Substance'] = df['Code_CIS'].astype(str)+'-'+df['Num_Element'].astype(str)+'-'+df['Code_Substance'].astype(str)+'-'+df['numOrdreEdit'].astype(str)
 		 	errors = Schema_ANS.schemaSpecialiteComposition(df,dfSpecialite,nameSpecialite,dfConditionnement,nameConditionnement,dfSubstance,nomSubstance).validate(df)		 	
 		if schema_to_validate == "list_procedure":
-		 	errors = Schema_ANS.schemaListeProcedure(f[2]).validate(f[2])
+			print(f[2])
+			f[2].info()
+			errors = Schema_ANS.schemaListeProcedure(f[2]).validate(f[2])
 		if schema_to_validate == "liste_événements_présentations":
 		 	errors = Schema_ANS.schemaListeEvenementPresentation(f[2]).validate(f[2])
 		if schema_to_validate == "liste_statuts":

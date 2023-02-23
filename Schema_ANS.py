@@ -93,7 +93,8 @@ def schemaSpecialiteEvenement(dfSpecialite,dfSource,nameSpecialite,dfL_Evenement
 		Column('Type_Evnt_Spc', [InListValidation_fr(['Changement de procédure', 'Changement de statut', 'Statut actif']),
 							  ColonneObligatoire()
 							  ]),
-		Column('Evnt_Mar_Spc',[ColonneObligatoire()])
+		Column('Evnt_Mar_Spc',[ColonneObligatoire(),
+							validateEvntMarColumn(dfSource,['changement de procédure'],['Changement de procédure'])])
 	])
 
 	return schema_SpecialiteEvenement

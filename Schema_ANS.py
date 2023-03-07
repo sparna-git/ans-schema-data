@@ -15,25 +15,27 @@ def schemaSpecialite(dfSource, dfPresentation, dfConditionnement, namePresentati
 								MasterDetail(dfConditionnement,'Code_CIS', nameConditionnement) #Conditionnement
 								]),
 			Column('Nom_Specialite',[ColonneObligatoire()]),			
-			Column('Statut_AMM', [ColonneObligatoire()
-								  #validationStatut_Specialite(dfSource,dfESpecialite, nomESpecialite)
+			Column('Statut_AMM', [ColonneObligatoire(),
+							  	  validationStatut_Specialite(dfSource,dfESpecialite, nomESpecialite)
 							  ]), 
 			Column('Code_Statut',[ColonneObligatoire(),
-								MasterDetail(dfLStatus, 'Code_Statut', nomLStatus)]),
-			Column('Date_AMM', [validateFmtDateColumn('%d/%m/%Y'), #Valider que le formatage de la date soit accorde indiqué
-								ColonneObligatoire()
+								  MasterDetail(dfLStatus,'Code_Statut', nomLStatus)
 								]),
-			Column('Date_Auto',[validateFmtDateColumn('%d/%m/%Y') #Valider que le formatage de la date soit accorde indiqué
-								, validateDateAutoColumn(dfSource)
+			Column('Date_AMM', [ColonneObligatoire(),
+								validateFmtDateColumn('%d/%m/%Y')								
+								]),
+			Column('Date_Auto',[validateFmtDateColumn('%d/%m/%Y'),
+								validateDateAutoColumn(dfSource)
 								],allow_empty=True),
-			Column('Date_fin_statut_actif_AMM',[validateFmtDateColumn('%d/%m/%Y'), #Valider que le formatage de la date soit accorde indiqué
+			Column('Date_fin_statut_actif_AMM',[validateFmtDateColumn('%d/%m/%Y'),
 										ValidationColumnStatus(dfSource)
 										],allow_empty=True),
-
 			Column('Procedure', [ColonneObligatoire()]),
-			Column('Code_Procedure',[ColonneObligatoire(),validateCle(dfLProcedures, 'Code_Proc',nomLProcedures)]),
+			Column('Code_Procedure',[ColonneObligatoire(),
+									 validateCle(dfLProcedures, 'Code_Proc',nomLProcedures)
+									 ]),
 			Column('Lib_ATC', [ColonneObligatoire()]),
-			Column('Code_ATC', [ColonneObligatoire()])			
+			Column('Code_ATC', [ColonneObligatoire()])
 	])
 
 	return schema_Specialite
@@ -42,7 +44,7 @@ def schemaPresentation(dfSpecialite,nameSpecialite,dfPDispositif, namePDispositi
 
 	schema_presentation = Schema([
 			Column('Code_CIS', [ColonneObligatoire(),
-								#MasterDetail(dfSpecialite,'Code_CIS', nameSpecialite)								
+								MasterDetail(dfSpecialite,'Code_CIS', nameSpecialite)								
 							 	]),
 			Column('Code_CIP13', [MatchesPatternValidation_fr(r'\d{13}'), 
 								  ColonneObligatoire(),
@@ -56,22 +58,22 @@ def schemaPresentation(dfSpecialite,nameSpecialite,dfPDispositif, namePDispositi
 
 	return schema_presentation
 
-def schemaDispositif(FileMaster,FilePresentation,MasterFileName, PresentationFileName):
+def schemaDispositif(FileMaster,dfPresentation,MasterFileName, PresentationFileName):
 
 	# Schema for dispositif
 	schema_dispositif = Schema([
 			Column('Code_CIS', [MasterDetail(FileMaster,'Code_CIS', MasterFileName), ColonneObligatoire()]),
-			Column('Code_CIP13', [MasterDetail(FilePresentation,'Code_CIP13', PresentationFileName), ColonneObligatoire()]),
+			Column('Code_CIP13', [MasterDetail(dfPresentation,'Code_CIP13', PresentationFileName), ColonneObligatoire()]),
 			Column('Dispositif')
 		])
 
 	return schema_dispositif
 
-def schemaConditionnement(dfSource,FileMaster,FilePresentation,MasterFileName, PresentationFileName,dfComposition,nomComposition):
+def schemaConditionnement(dfSource,FileMaster,dfPresentation,MasterFileName, PresentationFileName,dfComposition,nomComposition):
 
 	schema_Conditionnement = Schema([
 			Column('Code_CIS', [MasterDetail(FileMaster,'Code_CIS', MasterFileName), ColonneObligatoire()]),
-			Column('Code_CIP13', [MasterDetail(FilePresentation,'Code_CIP13', PresentationFileName)]),
+			Column('Code_CIP13', [MasterDetail(dfPresentation,'Code_CIP13', PresentationFileName)]),
 			Column('Num_Element'),
 			Column('Nom_Element', [ColonneObligatoire()]),			
 			Column('Recipient', [ColonneObligatoire()])
@@ -84,7 +86,7 @@ def schemaSpecialiteEvenement(dfSpecialite,dfSource,nameSpecialite,dfL_Evenement
 	schema_SpecialiteEvenement = Schema([
 		Column('Code_CIS', [MasterDetail(dfSpecialite,'Code_CIS', nameSpecialite),ColonneObligatoire()]),
 		Column('Code_Evnt_Spc',[ColonneObligatoire(),
-							MasterDetail(dfL_Evenement_Specialite,'Code_Evnt_Spc', nomL_Evenement_Specialite)
+								MasterDetail(dfL_Evenement_Specialite,'Code_Evnt_Spc', nomL_Evenement_Specialite)
 						]),
 		Column('Date_Evnt_Spc',[validateFmtDateColumn('%d/%m/%Y'),
 							ColonneObligatoire()
@@ -93,8 +95,7 @@ def schemaSpecialiteEvenement(dfSpecialite,dfSource,nameSpecialite,dfL_Evenement
 		Column('Type_Evnt_Spc', [InListValidation_fr(['Changement de procédure', 'Changement de statut', 'Statut actif']),
 							  ColonneObligatoire()
 							  ]),
-		Column('Evnt_Mar_Spc',[ColonneObligatoire(),
-							validateEvntMarColumn(dfSource,['changement de procédure'],['Changement de procédure'])])
+		Column('Evnt_Mar_Spc',[ColonneObligatoire()])
 	])
 
 	return schema_SpecialiteEvenement
@@ -127,18 +128,17 @@ def schemaSpecialiteComposition(dfSource,dfSpecialite,nameSpecialite,dfCondition
 				]),
 		Column('Forme_Phar_Element',[ColonneObligatoire()]),
 		Column('Nom_Element', [ColonneObligatoire()]),
-		Column('Reference_dosage'),
-		Column('Code_Substance', [ColonneObligatoire(),
-								MasterDetail(dfSubstance,'Code_Substance', nomfichierSubstance)
-							]),
 		Column('Nom_Nature', [InListValidation_fr(['Substances actives.', 'Fractions thérapeutiques.']),
 							  ColonneObligatoire()
 							  ]),
+		Column('Reference_dosage'),
+		Column('Code_Substance', [ColonneObligatoire(),
+								MasterDetail(dfSubstance,'Code_Substance', nomfichierSubstance)
+							]),		
 		Column('numOrdreEdit',[ColonneObligatoire(),
 							   MatchesPatternValidation_fr(r'^[0-9]*$')	
 							]),
 		Column('Dosage'),
-		Column('Nom du composant'),
 		Column('CIS-Element-Substance',[DistinctValidation_fr()])
 		])
 
@@ -194,7 +194,7 @@ def schemaListeStatus(dfSource):
 		Column('Date_Inactiv_Statut',[dateApresCreation(dfSource[['Date_Crea_Statut','Date_Inactiv_Statut']]), 
 									validateFmtDateColumn('%d/%m/%Y')])
 		])
-
+	
 	return schema_liste_status
 
 def schemaListeEvenementSpecialite():
@@ -246,7 +246,7 @@ def schemaUCD(dfPresentation, namePresentation):
 		Column('CodeCIP13',[ColonneObligatoire(),MasterDetail(dfPresentation,'Code_CIP13', namePresentation)]),
 		Column('Type autorisation 1'),
 		Column('Type autorisation 2'),
-		Column('Date de commercialisation'),
+		Column('Date de commercialisation',[ColonneObligatoire(),validateFmtDateColumn('%d/%m/%Y')]),
 		Column('Date de suppression',[validateFmtDateColumn('%d/%m/%Y')]),
 		Column('Quantité conditionnement Primaire',[validateValeurIntorVergule()]),
 		Column('Unité conditionnement primaire',[validationValeurList(['DOSE','GRAMME','KG','LITRE','MEGABECQUEREL','MILLIGRAMME','MILLILITRES','UNITE-INTERNATIONALE'])])

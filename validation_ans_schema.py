@@ -9,7 +9,6 @@ from pandas_schema.validation import _SeriesValidation, CustomSeriesValidation
 from pandas_schema import ValidationWarning
 from pandas_schema.errors import PanSchArgumentError
 
-#import abc
 
 class ColonneObligatoire(_SeriesValidation):
     def __init__(self, **kwargs):
@@ -54,7 +53,6 @@ class MasterDetail(_SeriesValidation):
         self.columnKey = columnKey
         self.MasterFilename = MasterFilename
         super().__init__(**kwargs)
-
 
     @property
     def default_message(self):
@@ -148,15 +146,20 @@ class longueurColonne(_SeriesValidation):
         return 'la valeur doit avoir {} chiffre(s)'.format(self.nlongueur)
 
     def returnValue(self, result):
-        if result == '-':            
-            return True
+        
+
+        if str(float(result)).lower() == 'nan':
+            return True            
         else:
-            return len(str(int(result))) == int(self.nlongueur)
-            
+            if len(result) == self.nlongueur:
+              return True  
+            else:
+                return False
+
 
     def validate(self, series: pd.Series) -> pd.Series:
-        s = series.replace('<NA>','-')
-        return s.astype(str).apply(self.returnValue)
+        #s = series.replace('<NA>','-')
+        return series.astype(str).apply(self.returnValue)
 
 class validationValeurList(_SeriesValidation):
 
@@ -192,15 +195,18 @@ class validateFmtDateColumn(_SeriesValidation):
     def default_message(self):
         return 'La valeur doit être une date de la forme dd/mm/yyyy'.format(self.date_format)
 
-    def valid_date_fmt(self, val):
-        try:
-            datetime.datetime.strptime(val, self.date_format)            
+    def valid_date_fmt(self, fmtValue):
+
+        if fmtValue == 'nan':
             return True
-        except:
-            if val == 'nan':
-                return True
-            else:
+        else:
+            try:
+                bool(datetime.datetime.strptime(fmtValue, self.date_format))
+                return True                
+            except:
                 return False
+
+            
 
     def validate(self, series: pd.Series) -> pd.Series:
         return series.astype(str).apply(self.valid_date_fmt)
@@ -395,7 +401,6 @@ class validateValeurIntorVergule(_SeriesValidation):
     def validate(self, series: pd.Series) -> pd.Series:
         return series.apply(self.validaValeur)
 
-
 class validateCle(_SeriesValidation):
     def __init__(self, dfSource, colonne,nomFichier,**kwargs):
         self.df = dfSource
@@ -409,7 +414,7 @@ class validateCle(_SeriesValidation):
 
     def evaluer(self,value):
         try:
-            int(value) in self.df[self.colonne]
+            value in self.df[self.colonne]
             return True
         except:
             return False
@@ -430,7 +435,7 @@ class valideCodeSubstanceFlag(_SeriesValidation):
 
     def validate(self,series: pd.Series) -> pd.Series:
 
-        df = self.df[['Code_Substance','Flag_Substance']]
-        df['CODE'] = df['Code_Substance'].astype(str)+"-"+df['Flag_Substance']
-        outputSerie = pd.Series(df['CODE'])
+        dfOutput = pd.DataFrame()
+        dfOutput['CODE'] = self.df['Code_Substance'].astype(str)+self.df['Flag_Substance'].astype(str)
+        outputSerie = pd.Series(dfOutput['CODE'])
         return ~outputSerie.duplicated(keep='first')

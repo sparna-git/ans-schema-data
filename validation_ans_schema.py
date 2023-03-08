@@ -33,7 +33,7 @@ class ValidationNumElement(_SeriesValidation):
 
     @property
     def default_message(self):
-        return 'Cet identifiant d''élément pour ce code CIS n\'existe pas dans le fichier {}'.format(self.nomFichier)
+        return 'Cet identifiant d\'élément pour ce code CIS n\'existe pas dans le fichier {}'.format(self.nomFichier)
 
     def validate(self, series: pd.Series) -> pd.Series:
         self.series = series
@@ -62,8 +62,6 @@ class MasterDetail(_SeriesValidation):
     def validate(self, series: pd.Series) -> pd.Series:
         outputList = list()
         self.series = series
-        
-        #print(self.series.name)
 
         dfResult = pd.DataFrame()
         dfResult[self.columnKey] = self.series
@@ -82,14 +80,13 @@ class ValidationColumnStatus(_SeriesValidation):
 
     @property
     def default_message(self):
-        return 'la valeur est differente de "Archivé" ou "Suspension"'
+        return 'la valeur est differente de "Actif"'
 
     def validate(self, series: pd.Series) -> pd.Series:
         self.series = series
 
         df = self.dfSource[self.dfSource['Date_fin_statut_actif_AMM'].notna()]
         dfFilter = df[['Date_fin_statut_actif_AMM','Statut_AMM']]
-        #outputSerie = pd.Series(dfFilter['Date_fin_statut_actif_AMM'].dropna().where(dfFilter['Statut_AMM'].isin(['Archivé','Suspension'])))
         outputSerie = pd.Series(dfFilter['Date_fin_statut_actif_AMM'].dropna().where(dfFilter['Statut_AMM'] != 'Actif'))
         return ~outputSerie.astype(str).str.contains("nan")
 
@@ -156,9 +153,7 @@ class longueurColonne(_SeriesValidation):
             else:
                 return False
 
-
     def validate(self, series: pd.Series) -> pd.Series:
-        #s = series.replace('<NA>','-')
         return series.astype(str).apply(self.returnValue)
 
 class validationValeurList(_SeriesValidation):
@@ -206,8 +201,6 @@ class validateFmtDateColumn(_SeriesValidation):
             except:
                 return False
 
-            
-
     def validate(self, series: pd.Series) -> pd.Series:
         return series.astype(str).apply(self.valid_date_fmt)
 
@@ -235,13 +228,7 @@ class MatchesPatternValidation_fr(_SeriesValidation):
     """
     Validates that a string or regular expression can match somewhere in each element in this column
     """
-
     def __init__(self, pattern, options={}, **kwargs):
-        """
-        :param kwargs: Arguments to pass to Series.str.contains
-            (http://pandas.pydata.org/pandas-docs/stable/generated/pandas.Series.str.contains.html)
-            pat is the only required argument
-        """
         self.pattern = pattern
         self.options = options
         super().__init__(**kwargs)
@@ -305,15 +292,13 @@ class validationStatut_Specialite(_SeriesValidation):
         return 'La valeur du Status ne correspond pas avec la valeur "Evnt_Mar_Spc" du fichier {}'.format(self.nomESpecialite)
 
     def recupereMaxValeur(self, dfInput):
-        
-        
+                
         df = dfInput[dfInput['Type_Evnt_Spc'] == 'Changement de statut']
         codeCis = pd.Series(df['Code_CIS'].unique())
         outputMax = list()
         for code in codeCis:
             dfOut = df[df['Code_CIS'].isin([code])]
             dfOper = dfOut[['Code_CIS','Evnt_Mar_Spc']][pd.to_datetime(dfOut['Date_Evnt_Spc'],format='%d/%m/%Y') == max(pd.to_datetime(dfOut['Date_Evnt_Spc'],format='%d/%m/%Y'))]
-            #[dfOut['DateEvnt_Spec'].astype('datetime64[ns]') == max(dfOut['DateEvnt_Spec'].astype('datetime64[ns]'))]
             outputMax.append([x for l in dfOper.values for x in l])
 
         lst = list()
@@ -350,7 +335,7 @@ class validationStatut_Specialite(_SeriesValidation):
         self.df['values'] = (self.df['Statut_AMM'].apply(str.lower) == self.df['Evnt_Mar_Spc']) & ((self.df['Statut_AMM'] != "nan") & (self.df['Evnt_Mar_Spc']) != "nan")
 
         return self.df.apply(lambda x : self.outputResultat(x),axis=1)
-       
+
 class validateIntValeur(_SeriesValidation):
     def __init__(self,**kwargs):
         super().__init__(**kwargs)
@@ -422,7 +407,6 @@ class validateCle(_SeriesValidation):
     def validate(self, series: pd.Series) -> pd.Series:
         return series.apply(self.evaluer)
         
-
 class valideCodeSubstanceFlag(_SeriesValidation):
 
     def __init__(self, dfDenominations, **kwargs):

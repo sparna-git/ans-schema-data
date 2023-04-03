@@ -88,7 +88,7 @@ def readFileInput(pathInputs):
 			 	dtypeColumns = {'Code_Substance':str}
 			 	index = 1
 			 	Ordre = 12
-			elif filename.startswith('UCDTOT_Assemblage_ANS_'):
+			elif filename.startswith('UCD_CIP_'):
 			 	type_file="UCD"
 			 	dtypeColumns = {'CodeUCD':str,'CodeCIP13':str}
 			 	index = 1

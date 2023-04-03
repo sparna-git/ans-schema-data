@@ -370,13 +370,13 @@ class validateValeurIntorVergule(_SeriesValidation):
         valeur = str(value)
         if valeur != 'nan':
             try:
-                if "." in valeur:
+                if "," in valeur:
                     return True
                 else:
                     float(valeur).is_integer()
                     return True
             except:
-                if "," in valeur:
+                if "." in valeur:
                     return False
                 else:
                     return False

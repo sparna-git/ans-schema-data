@@ -15,14 +15,14 @@ def schemaSpecialite(dfSource, dfPresentation, dfConditionnement, namePresentati
 								MasterDetail(dfConditionnement,'Code_CIS', nameConditionnement) #Conditionnement
 								]),
 			Column('Nom_Specialite',[ColonneObligatoire()]),			
-			Column('Statut_AMM', [ColonneObligatoire(),
-							  	  validationStatut_Specialite(dfSource,dfESpecialite, nomESpecialite)
+			Column('Statut_AMM', [ColonneObligatoire()
+							  	  #validationStatut_Specialite(dfSource,dfESpecialite, nomESpecialite)
 							  ]), 
 			Column('Code_Statut',[ColonneObligatoire(),
 								  MasterDetail(dfLStatus,'Code_Statut', nomLStatus)
 								]),
 			Column('Date_AMM', [ColonneObligatoire(),
-								validateFmtDateColumn('%d/%m/%Y')								
+								validateFmtDateColumn('%d/%m/%Y')
 								]),
 			Column('Date_Auto',[validateFmtDateColumn('%d/%m/%Y'),
 								validateDateAutoColumn(dfSource)
@@ -48,7 +48,7 @@ def schemaPresentation(dfSpecialite,nameSpecialite,dfPDispositif, namePDispositi
 							 	]),
 			Column('Code_CIP13', [MatchesPatternValidation_fr(r'\d{13}'), 
 								  ColonneObligatoire(),
-								  MasterDetail(dfPDispositif, 'Code_CIP13', namePDispositif),
+								  MasterDetail(dfPDispositif, 'Code CIP13', namePDispositif),
 								  MasterDetail(dfConditionnement, 'Code_CIP13', nameConditionnement),
 								  MasterDetail(dfUCD, 'CodeCIP13', nomUCD)
 								  ]),
@@ -62,9 +62,9 @@ def schemaDispositif(FileMaster,dfPresentation,MasterFileName, PresentationFileN
 
 	# Schema for dispositif
 	schema_dispositif = Schema([
-			Column('Code_CIS', [MasterDetail(FileMaster,'Code_CIS', MasterFileName), ColonneObligatoire()]),
-			Column('Code_CIP13', [MasterDetail(dfPresentation,'Code_CIP13', PresentationFileName), ColonneObligatoire()]),
-			Column('Dispositif')
+			Column('Code CIS', [MasterDetail(FileMaster,'Code_CIS', MasterFileName), ColonneObligatoire()]),
+			Column('Code CIP13', [MasterDetail(dfPresentation,'Code_CIP13', PresentationFileName), ColonneObligatoire()]),
+			Column('Dispositifs (liste)')
 		])
 
 	return schema_dispositif
@@ -201,7 +201,15 @@ def schemaListeEvenementSpecialite():
 
 	schema_liste_EvenementSpecialite = Schema([
 		Column('Code_Evnt_Spc',[ColonneObligatoire()]),
-		Column('Lib_Evnt_Spc',[ColonneObligatoire()])
+		Column('Lib_Evnt_Spc',[ColonneObligatoire()]),
+		Column('Type_Evnt_Spc',[ColonneObligatoire()]),
+		Column('Desc_Evnt_Spc'),
+		Column('Date_Crea_Evnt_Spc',[validateFmtDateColumn('%d/%m/%Y')]),
+		Column('Date_Modif_Evnt_Spc',[validateFmtDateColumn('%d/%m/%Y')]),
+		Column('Date_Inactiv_Evnt_Spc',[validateFmtDateColumn('%d/%m/%Y'),
+
+									
+									])
 		])
 
 	return schema_liste_EvenementSpecialite
@@ -211,7 +219,14 @@ def schema_substance():
 	schema_substance = Schema([
 		Column('Code_Substance',[ColonneObligatoire()]),
 		Column('Code_SMS',[ColonneObligatoire()]),
-		Column('Lib_Pref_Fran',[ColonneObligatoire()])
+		Column('Lib_Pref_Fran',[ColonneObligatoire()]),
+		Column('Lib_Pref_Anglais'),	
+		Column('Date_Crea_Substance', [ColonneObligatoire(),
+								validateFmtDateColumn('%d/%m/%Y')
+								]),
+		Column('Date_Modif_Substance', [#ColonneObligatoire(),
+								validateFmtDateColumn('%d/%m/%Y')
+								])
 	])
 
 	return schema_substance
@@ -227,7 +242,12 @@ def schema_denominations_substance(dfSubstance, nomfichierSubstance, dfDenominat
 		Column('Flag_Substance',[ColonneObligatoire(),
 								validationValeurList(['ANS nom préféré','ANS autre nom']),
 								valideCodeSubstanceFlag(dfDenominations)
-								])
+								]),
+		Column('Langue_nom_substance',[ColonneObligatoire()]),
+		Column('Date_Crea_Nom_Substance', [ColonneObligatoire(),
+								validateFmtDateColumn('%d/%m/%Y')
+								]),
+		Column('Date_Modif_Nom_Substance', [validateFmtDateColumn('%d/%m/%Y')])
 	])
 
 	return schema_denominations_substance
@@ -241,7 +261,6 @@ def schemaUCD(dfPresentation, namePresentation):
 		Column('LibelleCIP'),
 		Column('Laboratoire'),
 		Column('Qte',[ColonneObligatoire(),validateIntValeur()]),
-		Column('EphMRA'),
 		Column('CodeUCD13',[ColonneObligatoire(),MatchesPatternValidation_fr(r'\w{13}')]),
 		Column('CodeCIP13',[ColonneObligatoire(),MasterDetail(dfPresentation,'Code_CIP13', namePresentation)]),
 		Column('Type autorisation 1'),

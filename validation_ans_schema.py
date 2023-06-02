@@ -347,11 +347,17 @@ class validateIntValeur(_SeriesValidation):
     def validaTypeInt(self,value):
         valeur = str(value)
         if valeur != 'nan':
-            i,d = valeur.split('.')
-            if int(d) == 0:
-                return True
+            if '.' in valeur:
+                i,d = valeur.split('.')
+                if int(d) == 0:
+                    return True
+                else:
+                    return False
             else:
-                return False
+                if int(valeur):
+                    return True
+                else:
+                    return False
         else:
             return True
 
@@ -420,6 +426,6 @@ class valideCodeSubstanceFlag(_SeriesValidation):
     def validate(self,series: pd.Series) -> pd.Series:
 
         dfOutput = pd.DataFrame()
-        dfOutput['CODE'] = self.df['Code_Substance'].astype(str)+self.df['Flag_Substance'].astype(str)
+        dfOutput['CODE'] = self.df['Code_Substance'].astype(str)+self.df['Langue_nom_substance'].astype(str)+self.df['Flag_Substance'].astype(str)
         outputSerie = pd.Series(dfOutput['CODE'])
         return ~outputSerie.duplicated(keep='first')

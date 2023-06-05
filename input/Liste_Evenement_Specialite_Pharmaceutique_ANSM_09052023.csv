@@ -1,0 +1,10 @@
+Code_Evnt_Spc;Lib_Evnt_Spc;Type_Evnt_Spc;Desc_Evnt_Spc;Date_Crea_Evnt_Spc;Date_Modif_Evnt_Spc;Date_Inactiv_Evnt_Spc
+995;Autorisation redevenue active;Changement de statut;;;;
+993;Retrait d'autorisation;Changement de statut;;;;
+996;Archivage de l'autorisation;Changement de statut;;;;
+992;Suspension d'autorisation;Changement de statut;;;;
+900;Validation;Statut actif;;;;
+998;AMM nationale devenue Reconnaissance Mutuelle;Changement de procédure;;;;
+997;Archivage administratif du code CIS (regroupement d'autorisations);Changement de statut;;;;
+994;Code CIS redevenu actif (abrogation du regroupement d'autorisation);Changement de statut;;;;
+999;AMM devenue Enregistrement de phytothérapie;Changement de procédure;;;;

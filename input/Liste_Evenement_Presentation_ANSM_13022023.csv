@@ -1,9 +1,0 @@
-Code_Evnt_Pres;Lib_Evnt_Pres;Type_Evnt_Pres;Desc_Evnt_Pres;Date_Creation_Evnt_Pres;Date_Modif_Evnt_Pres;Date_Inactiv_Evnt_Pres
-15;Déclaration de commercialisation;;;25/03/2003;13/12/2022;
-16;Déclaration d'arrêt de commercialisation;;;25/03/2003;13/12/2022;
-17;Suspension de commercialisation;;;25/03/2003;13/12/2022;
-18;Abrogation de Présentation;;;25/03/2003;13/12/2022;
-25;Distribution parallèle;;Evenement destiné à la déclaration de distribution parallèle pour les AMM en procédure centralisée ;23/11/2007;13/12/2022;
-30;Renotification de présentation;;Reprise de codes CIP après une abrogation ;28/01/2008;13/12/2022;
-40;Arrêt de Commercialisation (Autorisation devenue inactive);;"Evénement réservé aux présentations encore en état ""Commercialisée"" au moment d'une abrogation, d'un retrait ou d'une suspension d'AMM.";01/03/2011;13/12/2022;
-90;Abrogation de présentation;;Evénement réservé aux cas des présentations abrogées qui sont ensuite renotifiées;05/02/2009;13/12/2022;05/02/2009

@@ -268,7 +268,7 @@ def schemaUCD(dfPresentation, namePresentation):
 		Column('Date de commercialisation',[ColonneObligatoire(),validateFmtDateColumn('%d/%m/%Y')]),
 		Column('Date de suppression',[validateFmtDateColumn('%d/%m/%Y')]),
 		Column('Quantité conditionnement Primaire',[validateValeurIntorVergule()]),
-		Column('Unité conditionnement primaire',[validationValeurList(['DOSE','GRAMME','KG','LITRE','MEGABECQUEREL','MILLIGRAMME','MILLILITRES','UNITE-INTERNATIONALE'])])
+		Column('Unité conditionnement primaire',[validationValeurList(['dose','g','L','mg','mL','[iU]'])]) #['DOSE','GRAMME','KG','LITRE','MEGABECQUEREL','MILLIGRAMME','MILLILITRES','UNITE-INTERNATIONALE']
 		])
 
 	return schema_UCD

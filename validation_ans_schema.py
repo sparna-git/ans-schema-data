@@ -425,7 +425,12 @@ class valideCodeSubstanceFlag(_SeriesValidation):
 
     def validate(self,series: pd.Series) -> pd.Series:
 
-        dfOutput = pd.DataFrame()
-        dfOutput['CODE'] = self.df['Code_Substance'].astype(str)+self.df['Langue_nom_substance'].astype(str)+self.df['Flag_Substance'].astype(str)
-        outputSerie = pd.Series(dfOutput['CODE'])
-        return ~outputSerie.duplicated(keep='first')
+        
+        dfFilter = self.df[(self.df.Flag_Substance=="ANS nom préféré")]
+        dfFilter["codeID"] = dfFilter["Code_Substance"].astype(str)+dfFilter["Langue_nom_substance"].astype(str)+dfFilter["Flag_Substance"].astype(str)
+        dfResult = dfFilter[(dfFilter.codeID.duplicated(keep='first'))]
+        
+        self.df["code"] = self.df["Code_Substance"].astype(str)+self.df["Langue_nom_substance"].astype(str)+self.df["Flag_Substance"].astype(str)
+        self.df["validation"] = self.df.code.isin(dfResult.codeID)
+        
+        return ~self.df["validation"]
